@@ -186,16 +186,16 @@ final class AppState: ObservableObject {
     func scanAll() {
         guard !isScanning else { return }
         refreshVolumes()
-        let internal = internalVolumes
-        let external = externalVolumes
-        if external.isEmpty {
-            startScan(internal)
+        let internalList = internalVolumes
+        let externalList = externalVolumes
+        if externalList.isEmpty {
+            startScan(internalList)
             return
         }
         switch settings.externalDriveBehavior {
-        case .always: startScan(internal + external)
-        case .never: startScan(internal)
-        case .ask: externalPrompt = ExternalPrompt(internalVolumes: internal, externalVolumes: external)
+        case .always: startScan(internalList + externalList)
+        case .never: startScan(internalList)
+        case .ask: externalPrompt = ExternalPrompt(internalVolumes: internalList, externalVolumes: externalList)
         }
     }
 
@@ -359,7 +359,7 @@ final class AppState: ObservableObject {
             let outcomes = await Task.detached(priority: .userInitiated) {
                 TrashService(guardrail: guardrail).moveToTrash(paths)
             }.value
-            let byPath = Dictionary(uniqueKeysWithValues: request.items.map { ($0.path, $0) })
+            let byPath = Dictionary(request.items.map { ($0.path, $0) }, uniquingKeysWith: { first, _ in first })
             var removed = Set<String>()
             var records: [DeletionRecord] = []
             for outcome in outcomes where outcome.succeeded {

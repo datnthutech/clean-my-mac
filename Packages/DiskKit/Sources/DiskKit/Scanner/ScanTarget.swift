@@ -25,6 +25,8 @@ public final class ScanProgress: @unchecked Sendable {
         public var bytesScanned: Int64 = 0
         public var currentPath: String = ""
         public var unreadableDirectories: Int = 0
+
+        public init() {}
     }
 
     private let lock = NSLock()

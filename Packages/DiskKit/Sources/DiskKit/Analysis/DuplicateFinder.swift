@@ -30,6 +30,13 @@ public struct DuplicateFile: Hashable, Sendable, Identifiable {
     public let volumeName: String
     public let allocatedSize: Int64
     public let modificationDate: Date
+
+    public init(path: String, volumeName: String, allocatedSize: Int64, modificationDate: Date) {
+        self.path = path
+        self.volumeName = volumeName
+        self.allocatedSize = allocatedSize
+        self.modificationDate = modificationDate
+    }
 }
 
 /// Files sharing the same name (case-insensitive, Unicode-normalized).
@@ -41,6 +48,12 @@ public struct DuplicateGroup: Hashable, Sendable, Identifiable {
     public let displayName: String
     /// Newest first: the first file is the suggested one to keep.
     public let files: [DuplicateFile]
+
+    public init(key: String, displayName: String, files: [DuplicateFile]) {
+        self.key = key
+        self.displayName = displayName
+        self.files = files
+    }
 
     public var totalSize: Int64 { files.reduce(0) { $0 + $1.allocatedSize } }
     /// Space freed by keeping only the newest copy.

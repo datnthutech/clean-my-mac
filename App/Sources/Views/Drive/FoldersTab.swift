@@ -189,7 +189,9 @@ private struct Breadcrumb: View {
         }
         return ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 4) {
-                ForEach(Array(chain.enumerated()), id: \.offset) { index, node in
+                ForEach(Array(chain.enumerated()), id: \.offset) { pair in
+                    let index = pair.offset
+                    let node = pair.element
                     if index > 0 { Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary) }
                     Button(node === root ? (root.path == "/" ? "/" : root.name) : node.name) { onSelect(node) }
                         .buttonStyle(.link)
