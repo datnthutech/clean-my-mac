@@ -37,6 +37,32 @@ jobs:
         run: brew install xcodegen
       - name: Build (tests + universal app + DMG)
         run: scripts/build.sh
+      - name: Smoke test (launch, scan, screenshots)
+        run: |
+          mkdir -p screenshots
+          APP="build/Clean My Mac.app"
+          BIN="$APP/Contents/MacOS/CleanMyMac"
+          # 1) First launch: welcome screen.
+          "$BIN" -AppleLanguages "(vi)" &
+          sleep 8
+          screencapture -x screenshots/1-onboarding.png || true
+          pgrep -x CleanMyMac >/dev/null || { echo "App crashed on launch"; exit 1; }
+          pkill -x CleanMyMac; sleep 2
+          # 2) Skip onboarding and scan on launch.
+          defaults write com.datnthutech.cleanmymac hasCompletedOnboarding -bool true
+          "$BIN" -AppleLanguages "(vi)" -scanOnLaunch YES &
+          sleep 10
+          screencapture -x screenshots/2-scanning.png || true
+          for i in $(seq 1 24); do sleep 10; pgrep -x CleanMyMac >/dev/null || { echo "App crashed while scanning"; exit 1; }; done
+          screencapture -x screenshots/3-summary.png || true
+          pkill -x CleanMyMac || true
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
+          if-no-files-found: ignore
       - name: Upload DMG
         uses: actions/upload-artifact@v4
         with:

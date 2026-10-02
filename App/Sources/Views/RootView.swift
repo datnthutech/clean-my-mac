@@ -37,6 +37,10 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: state.isScanning)
+        .task {
+            // `-scanOnLaunch YES` (used by the CI smoke test) starts a scan right away.
+            if UserDefaults.standard.bool(forKey: "scanOnLaunch") { state.scanAll() }
+        }
         .sheet(item: $state.externalPrompt) { prompt in
             ExternalDriveSheet(prompt: prompt)
         }
