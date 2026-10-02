@@ -1,0 +1,31 @@
+name: Release
+
+# Push a tag like v1.0.0 to build the DMG and attach it to a GitHub Release.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Set version from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          sed -i '' "s/MARKETING_VERSION: \".*\"/MARKETING_VERSION: \"$VERSION\"/" project.yml
+          sed -i '' "s/CURRENT_PROJECT_VERSION: \".*\"/CURRENT_PROJECT_VERSION: \"$GITHUB_RUN_NUMBER\"/" project.yml
+      - name: Build
+        run: scripts/build.sh
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/*.dmg
+          generate_release_notes: true

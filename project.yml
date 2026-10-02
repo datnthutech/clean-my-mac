@@ -1,0 +1,65 @@
+# XcodeGen spec — generates CleanMyMac.xcodeproj (run `make project`).
+# The generated project is not committed; this file is the source of truth.
+name: CleanMyMac
+options:
+  bundleIdPrefix: com.datnthutech
+  deploymentTarget:
+    macOS: "13.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+
+packages:
+  DiskKit:
+    path: Packages/DiskKit
+
+settings:
+  base:
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+targets:
+  CleanMyMac:
+    type: application
+    platform: macOS
+    sources:
+      - path: App/Sources
+      - path: App/Resources
+    dependencies:
+      - package: DiskKit
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleName: Clean My Mac
+        CFBundleDisplayName: Clean My Mac
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, vi]
+        LSApplicationCategoryType: public.app-category.utilities
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSHumanReadableCopyright: "© 2026 datnthutech"
+        NSPrincipalClass: NSApplication
+    entitlements:
+      path: App/CleanMyMac.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.datnthutech.cleanmymac
+        PRODUCT_NAME: CleanMyMac
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        DEVELOPMENT_TEAM: ""
+        COMBINE_HIDPI_IMAGES: YES
+        DEAD_CODE_STRIPPING: YES
+      configs:
+        Release:
+          ONLY_ACTIVE_ARCH: NO
+          SWIFT_OPTIMIZATION_LEVEL: -O
+    scheme:
+      testTargets: []
