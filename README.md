@@ -14,6 +14,8 @@
 - 🗑️ **Xoá an toàn** — chỉ chuyển vào Thùng rác, khoá thư mục hệ thống, có nhật ký
 - 🌐 **Tiếng Việt & English**, đổi ngay trong app · macOS 13 Ventura trở lên · Apple silicon & Intel
 
+![Màn hình Tóm tắt — ảnh chụp từ CI trên macOS 15](docs/screenshot-summary.jpg)
+
 ## Bắt đầu
 
 | Bạn muốn | Làm |

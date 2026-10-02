@@ -3,6 +3,10 @@
 Mẫu thiết kế chi tiết (6 màn hình, có thể phóng to/thu nhỏ và để lại bình luận):
 **https://claude.ai/artifact/SrnoYTUQTpu9VbmCPEiELa**
 
+Ảnh chụp app thật (CI tự chạy app trên macOS 15 và chụp lại sau khi quét):
+
+![Tóm tắt](screenshot-summary.jpg)
+
 ## Nguyên tắc
 
 - **Giao diện native macOS**: SwiftUI `NavigationSplitView`, font hệ thống (SF Pro), hỗ trợ Light/Dark mode tự động, phím tắt chuẩn.
