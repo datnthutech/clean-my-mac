@@ -143,6 +143,10 @@ Mỗi dòng có nút **[Xem]** dẫn tới tab liên quan. Ngưỡng là khuyế
 
 ## 3. Giao diện
 
+**Mẫu thiết kế đầy đủ (6 màn hình):** https://claude.ai/artifact/SrnoYTUQTpu9VbmCPEiELa — mô tả chi tiết trong [DESIGN.md](DESIGN.md).
+
+1. Tóm tắt · 2. Chi tiết ổ đĩa (Phân loại / Thư mục + Treemap / File lớn) · 3. File trùng tên · 4. Docker · 5. Xác nhận ổ rời & tiến trình quét · 6. Hướng dẫn sử dụng
+
 ```
 ┌──────────────────┬────────────────────────────────────────────────┐
 │ Ổ ĐĨA            │  Macintosh HD          🟠 Còn 14 GB (5%)          │
@@ -162,45 +166,36 @@ Mỗi dòng có nút **[Xem]** dẫn tới tab liên quan. Ngưỡng là khuyế
 
 ---
 
-## 4. Kiến trúc & cấu trúc thư mục
+## 4. Kiến trúc & cấu trúc ứng dụng
 
-```
-clean-my-mac/
-├── project.yml                 # XcodeGen — sinh .xcodeproj (dễ quản lý trong git)
-├── Packages/DiskKit/           # Logic thuần, test được độc lập
-│   ├── Sources/DiskKit/
-│   │   ├── Volumes/            # Liệt kê ổ, theo dõi mount/unmount
-│   │   ├── Scanner/            # getattrlistbulk, quét song song, cây kích thước
-│   │   ├── Categorizer/        # Phân loại theo mục đích
-│   │   ├── Duplicates/         # Gom nhóm trùng tên
-│   │   ├── Docker/             # Phát hiện, kiểm tra daemon, quét, dọn
-│   │   ├── Health/             # Ngưỡng cảnh báo, tạo tóm tắt mức độ
-│   │   └── Trash/              # Xoá an toàn + danh sách chặn + nhật ký
-│   └── Tests/DiskKitTests/
-├── App/                        # SwiftUI app
-│   ├── Views/ (Sidebar, Summary, Categories, LargeFiles, Duplicates, Docker, Settings, Onboarding)
-│   ├── ViewModels/
-│   └── Resources/Localizable.xcstrings
-├── .github/workflows/ci.yml    # Build + test trên runner macOS
-└── docs/PLAN.md
-```
+Chi tiết: [ARCHITECTURE.md](ARCHITECTURE.md). Tóm tắt:
 
----
-
-## 5. Lộ trình
-
-| Phase | Nội dung | Kết quả |
+| Tầng | Thư mục | Trách nhiệm |
 |---|---|---|
-| **0** | Khung dự án: XcodeGen, DiskKit package, CI GitHub Actions (macOS), String Catalog vi/en | App rỗng build được trên CI |
-| **1** | Ổ đĩa: liệt kê, mount/unmount realtime, cảnh báo dung lượng, sidebar, hộp thoại xác nhận ổ rời | Thấy được các ổ + mức cảnh báo |
-| **2** | Scanner nhanh + chính xác, tiến trình, huỷ, Full Disk Access onboarding, danh sách lớn → nhỏ, treemap, tab File lớn | Quét & duyệt dung lượng |
-| **3** | Phân loại theo mục đích sử dụng | Biết dung lượng dùng cho việc gì |
-| **4** | File trùng tên (chuẩn hoá Unicode, loại trừ, xếp theo dung lượng giải phóng) | Danh sách trùng tên |
-| **5** | Docker: kiểm tra cài đặt → daemon → quét `<none>` → dọn | Dọn Docker an toàn |
-| **6** | Thẻ tóm tắt mức độ, xoá vào Thùng rác + chặn + nhật ký, Cài đặt | Dọn dẹp hoàn chỉnh |
-| **7** | Hoàn thiện: hiệu năng, Universal build, ký + notarize, DMG | Bản phát hành |
+| Giao diện | `App/Sources/Views/` | Mỗi màn hình một thư mục (Sidebar, Summary, Drive, Duplicates, Docker, Log, Help, Settings, Onboarding, Common) |
+| Trạng thái | `App/Sources/State/` | `AppState` — nguồn dữ liệu duy nhất, điều phối quét / Docker / xoá; `AppSettings` — tuỳ chọn |
+| Ngôn ngữ | `App/Sources/Localization/`, `App/Resources/{vi,en}.lproj` | Tra chuỗi theo ngôn ngữ đang chọn, đổi ngay |
+| Logic | `Packages/DiskKit/` | Volumes · Scanner · Analysis · Docker · Health · Trash · Layout · System — không phụ thuộc UI, có unit test |
+| Build | `project.yml`, `Makefile`, `scripts/`, `.github/workflows/` | Sinh project, test, build universal, DMG, CI, Release |
 
----
+## 4b. Hướng dẫn sử dụng
+
+- **Trong app**: mục *Hướng dẫn sử dụng* ở thanh bên (⌘?) — 9 chủ đề, song ngữ, có nút mở Cài đặt hệ thống cho Full Disk Access.
+- **Tài liệu**: [USER_GUIDE.md](USER_GUIDE.md) (Tiếng Việt), [USER_GUIDE.en.md](USER_GUIDE.en.md) (English) — cài đặt, quét, đọc mức độ, từng màn hình, xoá & khôi phục, phím tắt, FAQ.
+- **Lần mở đầu**: màn hình chào giới thiệu tính năng, chọn ngôn ngữ, hướng dẫn cấp Full Disk Access.
+
+## 5. Lộ trình & trạng thái
+
+| Phase | Nội dung | Trạng thái |
+|---|---|---|
+| 0 | Khung dự án: XcodeGen, DiskKit, CI, vi/en | ✅ |
+| 1 | Ổ đĩa, mount/unmount realtime, cảnh báo dung lượng, sidebar, xác nhận ổ rời | ✅ |
+| 2 | Scanner nhanh + chính xác, tiến trình, huỷ, Full Disk Access, danh sách lớn → nhỏ, treemap, File lớn | ✅ |
+| 3 | Phân loại theo mục đích sử dụng + thư mục đáng chú ý | ✅ |
+| 4 | File trùng tên | ✅ |
+| 5 | Docker 4 bước | ✅ |
+| 6 | Tóm tắt mức độ, xoá vào Thùng rác + chặn + nhật ký, Cài đặt | ✅ |
+| 7 | Icon, build universal, DMG, CI/Release tự động, hướng dẫn sử dụng | ✅ (ký Developer ID + notarize: cần tài khoản Apple Developer) |
 
 ## 6. Kiểm thử
 - **Unit test (DiskKit):** tính dung lượng (hardlink, sparse), phân loại, gom trùng tên (hoa/thường, NFC/NFD), ngưỡng cảnh báo, parse output Docker, danh sách chặn xoá.
