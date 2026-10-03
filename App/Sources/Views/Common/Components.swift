@@ -175,3 +175,29 @@ struct SelectionActionBar: View {
         .background(Color.primary.opacity(0.04))
     }
 }
+
+/// The app's equivalent of CSS `overflow: auto` for a whole page.
+///
+/// The page is laid out at the window's size, but never smaller than `minWidth` × `minHeight`.
+/// When the window is smaller than that, scroll bars appear instead of content spilling
+/// past the window edge; anything still wider than the page is clipped, never drawn outside.
+struct PageContainer<Content: View>: View {
+    var minWidth: CGFloat
+    var minHeight: CGFloat
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        GeometryReader { geo in
+            let width = max(geo.size.width, minWidth)
+            let height = max(geo.size.height, minHeight)
+            let page = content
+                .frame(width: width, height: height, alignment: .topLeading)
+                .clipped()
+            if width > geo.size.width || height > geo.size.height {
+                ScrollView([.horizontal, .vertical]) { page }
+            } else {
+                page
+            }
+        }
+    }
+}

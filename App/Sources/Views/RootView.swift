@@ -39,6 +39,14 @@ struct RootView: View {
         .animation(.easeInOut(duration: 0.2), value: state.isScanning)
         .task {
             // `-scanOnLaunch YES` (used by the CI smoke test) starts a scan right away.
+            if let page = UserDefaults.standard.string(forKey: "openPage") {
+                switch page {
+                case "duplicates": state.selection = .duplicates
+                case "docker": state.selection = .docker
+                case "help": state.selection = .help
+                default: break
+                }
+            }
             if UserDefaults.standard.bool(forKey: "scanOnLaunch") { state.scanAll() }
         }
         .sheet(item: $state.externalPrompt) { prompt in
@@ -79,7 +87,16 @@ struct DetailRouter: View {
     @EnvironmentObject private var state: AppState
 
     var body: some View {
-        switch state.selection ?? .summary {
+        let item = state.selection ?? .summary
+        // Every page is wrapped so it can never overflow the window (see PageContainer).
+        PageContainer(minWidth: Self.minimumWidth(for: item), minHeight: 460) {
+            page(for: item)
+        }
+    }
+
+    @ViewBuilder
+    private func page(for item: SidebarItem) -> some View {
+        switch item {
         case .summary: SummaryView()
         case let .volume(id): DriveDetailView(volumeID: id).id(id)
         case .duplicates: DuplicatesView()
@@ -87,6 +104,15 @@ struct DetailRouter: View {
         case .deletionLog: DeletionLogView()
         case .help: HelpView()
         case .settings: ScrollView { SettingsView().padding(24) }
+        }
+    }
+
+    /// Smallest width at which a page still lays out cleanly; below it the page scrolls sideways.
+    static func minimumWidth(for item: SidebarItem) -> CGFloat {
+        switch item {
+        case .volume, .duplicates: return 700
+        case .help: return 640
+        default: return 560
         }
     }
 }

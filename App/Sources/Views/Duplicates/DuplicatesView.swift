@@ -16,20 +16,15 @@ struct DuplicatesView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            ScreenHeader(title: l.t("duplicates.title"), subtitle: subtitle) {
-                HStack(spacing: 12) {
-                    Toggle(l.t("duplicates.skipDev"), isOn: optionBinding(\.skipDeveloperFolders))
-                    Toggle(l.t("duplicates.skipLibrary"), isOn: optionBinding(\.skipLibraryAndSystem))
-                    Picker(l.t("duplicates.minSize"), selection: optionBinding(\.minimumSize)) {
-                        ForEach(Self.sizeOptions, id: \.self) { size in
-                            Text(size == 0 ? l.t("duplicates.anySize") : l.bytes(size)).tag(size)
-                        }
-                    }
-                    .frame(width: 190)
-                }
-                .toggleStyle(.checkbox)
-                .disabled(state.isBusy)
+            ScreenHeader(title: l.t("duplicates.title"), subtitle: subtitle)
+            // Filters get their own row and stack vertically when the window is too narrow,
+            // so long (Vietnamese) labels can never push the page wider than the window.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 16) { filterControls }
+                VStack(alignment: .leading, spacing: 8) { filterControls }
             }
+            .toggleStyle(.checkbox)
+            .disabled(state.isBusy)
             NoticeBanner(text: l.t("duplicates.notice"))
 
             if state.scans.isEmpty {
@@ -41,13 +36,25 @@ struct DuplicatesView: View {
                 EmptyStateView(symbol: "checkmark.circle", title: l.t("duplicates.none.title"), message: l.t("duplicates.none.message"))
             } else {
                 HStack(alignment: .top, spacing: 16) {
-                    groupList.frame(width: 360)
-                    groupDetail
+                    groupList.frame(minWidth: 240, idealWidth: 320, maxWidth: 360)
+                    groupDetail.frame(minWidth: 380, maxWidth: .infinity)
                 }
             }
         }
         .padding(24)
         .quickLookPreview($previewURL)
+    }
+
+    @ViewBuilder
+    private var filterControls: some View {
+        Toggle(l.t("duplicates.skipDev"), isOn: optionBinding(\.skipDeveloperFolders))
+        Toggle(l.t("duplicates.skipLibrary"), isOn: optionBinding(\.skipLibraryAndSystem))
+        Picker(l.t("duplicates.minSize"), selection: optionBinding(\.minimumSize)) {
+            ForEach(Self.sizeOptions, id: \.self) { size in
+                Text(size == 0 ? l.t("duplicates.anySize") : l.bytes(size)).tag(size)
+            }
+        }
+        .fixedSize()
     }
 
     private var subtitle: String {
