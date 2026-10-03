@@ -10,8 +10,10 @@ struct RootView: View {
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView()
-                .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 300)
                 .modifier(HideSidebarToggle())
+                .frame(minWidth: 220)
+                // Width must be the outermost modifier or the split view ignores it.
+                .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 300)
         } detail: {
             DetailRouter()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
