@@ -195,6 +195,7 @@ Chi tiết: [ARCHITECTURE.md](ARCHITECTURE.md). Tóm tắt:
 | 4 | File trùng tên | ✅ |
 | 5 | Docker 4 bước | ✅ |
 | 6 | Tóm tắt mức độ, xoá vào Thùng rác + chặn + nhật ký, Cài đặt | ✅ |
+| 8 | **Bản Windows** (WinUI 3, Windows 10 1809+, x64 & ARM64): logic C#, giao diện đủ 6 trang, CI build + chạy thử, tài liệu | ✅ |
 | 7 | Icon, build universal, DMG, CI/Release tự động, hướng dẫn sử dụng | ✅ (ký Developer ID + notarize: cần tài khoản Apple Developer) |
 
 ## 6. Kiểm thử

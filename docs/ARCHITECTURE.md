@@ -154,3 +154,36 @@ Ký & notarize bằng tài khoản Apple Developer: đặt `SIGN_IDENTITY` và `
 | Thêm loại cảnh báo trên Tóm tắt | `FindingKind` + `SummaryBuilder`, câu chữ trong `FindingPresenter` |
 | Chặn thêm đường dẫn khỏi bị xoá | `TrashGuard` |
 | Thêm màn hình | `SidebarItem` + `DetailRouter` + view mới trong `Views/` |
+
+## 8. Bản Windows (`windows/`)
+
+Cùng kiến trúc hai tầng, viết bằng C# / .NET 8 + WinUI 3 (Windows App SDK 1.6, hỗ trợ Windows 10 1809+, x64 và ARM64, self-contained, không cần cài runtime).
+
+```
+windows/
+├── src/DiskKit.Core/            # logic thuần, build & test được trên mọi hệ điều hành
+│   ├── Models/FileTree.cs       # DirectoryNode, FileEntry, ScanResult, ByteFormatter
+│   ├── Scanner/Scanner.cs       # DiskScanner (đa luồng), ManagedDirectoryReader
+│   ├── Interop/WindowsBulkDirectoryReader.cs   # GetFileInformationByHandleEx: tên + size on disk + File ID hàng loạt
+│   ├── Volumes/Volumes.cs       # VolumeClassifier, VolumeService (phát hiện USB qua IOCTL)
+│   ├── Analysis/Analysis.cs     # Categorizer + Hotspot (đường dẫn Windows), LargeFileFinder, DuplicateFinder
+│   ├── Docker/Docker.cs         # DockerService (cài đặt → chạy → quét → dọn), DockerSize
+│   ├── Health/Health.cs         # HealthPolicy, SummaryBuilder
+│   ├── Trash/Trash.cs           # TrashGuard, RecycleBinService (SHFileOperation), DeletionLog, Elevation
+│   └── Layout/Treemap.cs        # squarified treemap
+├── src/CleanMyMac.App/          # WinUI 3
+│   ├── MainWindow.cs            # NavigationView (menu luôn mở, không thu gọn được) + PageHost (cuộn khi cửa sổ hẹp, trang lỗi không làm mất menu)
+│   ├── State/                   # AppState (nguồn dữ liệu duy nhất), AppSettings
+│   ├── Pages/                   # Summary, Drive, Duplicates, Docker, Log, Help, Settings
+│   ├── UI/                      # Theme, Ui (helper dựng giao diện), DialogService, TreemapControl
+│   ├── Localization/            # Localizer: đọc chung file .strings của macOS + ghi đè riêng Windows
+│   └── Strings/{en,vi}.strings  # chuỗi riêng Windows
+└── tests/DiskKit.Core.Tests/    # 29 test (xUnit)
+```
+
+- **Bản dịch dùng chung**: `Localizer` nạp `App/Resources/{vi,en}.lproj/Localizable.strings` của bản macOS, rồi ghi đè bằng `Strings/*.strings` của Windows. `scripts/check_localization.py` kiểm tra cả hai app.
+- **Quét**: `GetFileInformationByHandleEx(FileIdBothDirectoryInfo)` trả về dung lượng thực chiếm (AllocationSize) và File ID, nên hard link (WinSxS) chỉ tính một lần; junction/symlink (ReparsePoint) không bị đi theo.
+- **Xoá**: `SHFileOperation` với cờ `FOF_ALLOWUNDO` + `FOF_WANTNUKEWARNING`; ổ không có Thùng rác (USB/thẻ nhớ) được cảnh báo riêng.
+- **Menu luôn hiện**: `NavigationView.PaneClosing` bị huỷ, `IsPaneToggleButtonVisible=false`; lỗi khi dựng một trang chỉ hiện panel lỗi trong vùng nội dung; `App.UnhandledException` không để app thoát.
+- **CI** (`ci.yml`, job `windows`): kiểm tra bản dịch → `dotnet test` → `dotnet publish` (x64, ARM64) → zip → chạy thử app trên 8 trang + quét thật, chụp màn hình.
+- Chạy cục bộ trên Linux/macOS: `dotnet test windows/tests/DiskKit.Core.Tests` (phần logic). Giao diện chỉ build được trên Windows.

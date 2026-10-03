@@ -4,7 +4,7 @@
 
 Clean My Mac shows **what your disk space is used for**, points out what wastes space and lets you clean up **safely** — everything you remove goes to the Trash first.
 
-Requirements: macOS 13 Ventura or later, Apple silicon or Intel.
+Two editions: **macOS** (13 Ventura or later, Apple silicon and Intel) and **Windows** (10 version 1809 or later and Windows 11, x64 and ARM64). Same screens and features; Windows differences are in [section 11](#11-windows-edition).
 
 ## 1. Install
 
@@ -71,3 +71,22 @@ Everything goes to the Trash after a confirmation dialog. Restore with right-cli
 - *Totals differ from About This Mac?* macOS also counts APFS snapshots, swap and purgeable space, shown as “System data & unreadable”.
 - *Network drives?* Skipped — scanning over the network is too slow.
 - *Does the app use the network?* No.
+
+## 11. Windows edition
+
+Same 6 screens, severity levels and Vietnamese/English UI. Requires **Windows 10 version 1809 (build 17763) or later, or Windows 11**, on x64 or ARM64. No .NET or other runtime to install.
+
+**Install:** GitHub › **Actions** › latest **CI** run › **Artifacts** › `CleanMyMac-windows-x64` (Intel/AMD) or `CleanMyMac-windows-ARM64` (or **Releases**). Unzip anywhere and run `CleanMyMac.exe`. Windows SmartScreen may warn because the build is not commercially signed: **More info** › **Run anyway**. To build it yourself: install .NET SDK 8 and run `dotnet publish windows/src/CleanMyMac.App -c Release -r win-x64 -p:Platform=x64`.
+
+| | macOS | Windows |
+|---|---|---|
+| Protected folders | Full Disk Access | **Restart as administrator** button (optional; without it some system folders are skipped) |
+| Startup disk | Macintosh HD | Windows drive (usually C:) |
+| Deleting | Trash | Recycle Bin; **USB sticks and memory cards have no Recycle Bin**, so the app warns clearly and asks before deleting permanently |
+| Opening files | Show in Finder / Quick Look | Show in Explorer / Open |
+| Well-known folders | DerivedData, simulators… | Windows temp, Windows Update cache, `Windows.old`, Recycle Bin, browser caches, `node_modules`, NuGet/npm caches… |
+| Sizes | Allocated size | "Size on disk"; hard links (WinSxS) counted once; junctions/symlinks not followed |
+| Docker | Docker Desktop, OrbStack… | Docker Desktop (WSL 2); the `.vhdx` disk does not shrink automatically |
+| GB thresholds | Startup disk only | Windows drive only |
+
+External drives (USB, external SSD, memory cards) appear when connected and are still confirmed before scanning.

@@ -61,9 +61,28 @@ jobs:
           for i in $(seq 1 15); do sleep 10; pgrep -x CleanMyMac >/dev/null || { echo "App crashed on duplicates page"; exit 1; }; done
           screencapture -x screenshots/4-duplicates.png || true
           pkill -x CleanMyMac || true
-          # Small JPEG preview in the log, for environments that cannot download artifacts.
-          if [ -f screenshots/4-duplicates.png ]; then
-            sips -s format jpeg -s formatOptions 45 -Z 1100 screenshots/4-duplicates.png --out /tmp/preview.jpg >/dev/null
+          # 4) Every page before any scan (empty / not-ready states): the menu must always be visible.
+          for page in summary drive duplicates docker log help settings; do
+            "$BIN" -AppleLanguages "(vi)" -openPage "$page" &
+            sleep 6
+            pgrep -x CleanMyMac >/dev/null || { echo "App crashed on page $page"; exit 1; }
+            screencapture -x "screenshots/page-$page.png" || true
+            pkill -x CleanMyMac || true; sleep 2
+          done
+          # Contact sheet of all pages, printed as a small JPEG for environments that cannot download artifacts.
+          python3 -m pip install --quiet --user --break-system-packages pillow >/dev/null 2>&1 || true
+          python3 - <<'PY' || true
+          import glob
+          from PIL import Image
+          files = ["screenshots/4-duplicates.png"] + sorted(glob.glob("screenshots/page-*.png"))
+          tiles = [Image.open(f).convert("RGB") for f in files]
+          w = 520; h = int(tiles[0].height * w / tiles[0].width)
+          sheet = Image.new("RGB", (w * 3, h * ((len(tiles) + 2) // 3)), "white")
+          for i, t in enumerate(tiles):
+              sheet.paste(t.resize((w, h)), ((i % 3) * w, (i // 3) * h))
+          sheet.save("/tmp/preview.jpg", quality=45)
+          PY
+          if [ -f /tmp/preview.jpg ]; then
             echo "PREVIEW-BEGIN"; base64 -i /tmp/preview.jpg | fold -w 8000; echo "PREVIEW-END"
           fi
       - name: Upload screenshots
@@ -78,4 +97,69 @@ jobs:
         with:
           name: CleanMyMac-dmg
           path: build/*.dmg
+          if-no-files-found: error
+
+  windows:
+    name: Windows app (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: x64, rid: win-x64, runner: windows-latest, smoke: true }
+          - { arch: ARM64, rid: win-arm64, runner: windows-latest, smoke: false }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Check translations
+        shell: bash
+        run: python scripts/check_localization.py
+      - name: Core unit tests
+        if: matrix.arch == 'x64'
+        run: dotnet test windows/tests/DiskKit.Core.Tests -c Release
+      - name: Publish (self-contained, Windows 10 1809+)
+        run: >
+          dotnet publish windows/src/CleanMyMac.App/CleanMyMac.App.csproj -c Release
+          -r ${{ matrix.rid }} -p:Platform=${{ matrix.arch }}
+          -o windows/artifacts/${{ matrix.rid }}
+      - name: Package zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "windows/artifacts/${{ matrix.rid }}/*" -DestinationPath "windows/artifacts/CleanMyMac-windows-${{ matrix.arch }}.zip"
+      - name: Smoke test (launch every page, scan, screenshots)
+        if: matrix.smoke
+        shell: pwsh
+        run: scripts/windows-smoke.ps1 -Exe "$PWD/windows/artifacts/${{ matrix.rid }}/CleanMyMac.exe" -Out screenshots
+      - name: Contact sheet preview in log
+        if: matrix.smoke && always()
+        shell: bash
+        run: |
+          python -m pip install --quiet pillow || true
+          python - <<'PY' || true
+          import glob, base64
+          from PIL import Image
+          files = sorted(glob.glob("screenshots/page-*.png"))
+          if files:
+              tiles = [Image.open(f).convert("RGB") for f in files]
+              w = 520; h = int(tiles[0].height * w / tiles[0].width)
+              sheet = Image.new("RGB", (w * 3, h * ((len(tiles) + 2) // 3)), "white")
+              for i, t in enumerate(tiles): sheet.paste(t.resize((w, h)), ((i % 3) * w, (i // 3) * h))
+              sheet.save("preview.jpg", quality=45)
+              print("PREVIEW-BEGIN"); data = base64.b64encode(open("preview.jpg", "rb").read()).decode()
+              print("\n".join(data[i:i+8000] for i in range(0, len(data), 8000))); print("PREVIEW-END")
+          PY
+      - name: Upload screenshots
+        if: matrix.smoke && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-screenshots
+          path: screenshots/
+          if-no-files-found: ignore
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: CleanMyMac-windows-${{ matrix.arch }}
+          path: windows/artifacts/CleanMyMac-windows-${{ matrix.arch }}.zip
           if-no-files-found: error

@@ -4,16 +4,27 @@ import SwiftUI
 struct RootView: View {
     @EnvironmentObject private var state: AppState
     @EnvironmentObject private var l: Localizer
+    /// The menu (sidebar) must stay visible on every page, whatever state a page is in.
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView()
+                .modifier(HideSidebarToggle())
+                .frame(minWidth: 220)
+                // Width must be the outermost modifier or the split view ignores it.
                 .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 300)
         } detail: {
             DetailRouter()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color(nsColor: .windowBackgroundColor))
         }
+        // macOS collapses the sidebar on its own when a page is too wide or the window shrinks;
+        // always bring it back.
+        .onChange(of: columnVisibility) { newValue in
+            if newValue != .all { columnVisibility = .all }
+        }
+        .onChange(of: state.selection) { _ in columnVisibility = .all }
         .navigationTitle(l.t("app.name"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -41,10 +52,13 @@ struct RootView: View {
             // `-scanOnLaunch YES` (used by the CI smoke test) starts a scan right away.
             if let page = UserDefaults.standard.string(forKey: "openPage") {
                 switch page {
+                case "drive": state.selection = state.volumes.first.map { .volume($0.id) } ?? .summary
                 case "duplicates": state.selection = .duplicates
                 case "docker": state.selection = .docker
+                case "log": state.selection = .deletionLog
                 case "help": state.selection = .help
-                default: break
+                case "settings": state.selection = .settings
+                default: state.selection = .summary
                 }
             }
             if UserDefaults.standard.bool(forKey: "scanOnLaunch") { state.scanAll() }
@@ -79,6 +93,17 @@ struct RootView: View {
             Button("OK", role: .cancel) {}
         } message: { key in
             Text(l.t(key))
+        }
+    }
+}
+
+/// Removes the toolbar button that hides the sidebar (API available from macOS 14).
+private struct HideSidebarToggle: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 14.0, *) {
+            content.toolbar(removing: .sidebarToggle)
+        } else {
+            content
         }
     }
 }

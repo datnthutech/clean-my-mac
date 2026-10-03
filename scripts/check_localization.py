@@ -78,6 +78,53 @@ def used_keys() -> set:
     return keys
 
 
+WIN_APP = ROOT / "windows" / "src" / "CleanMyMac.App"
+WIN_HOTSPOTS = ["windowsTemp", "userTemp", "windowsUpdateCache", "windowsOld", "recycleBin", "browserCaches", "nodeModules",
+                "downloads", "iosBackups", "nuGetCache", "npmCache", "visualStudioCache"]
+WIN_DYNAMIC_KEYS = (
+    [f"severity.{s}" for s in ["critical", "warning", "info", "ok"]]
+    + [f"volume.kind.{k}" for k in ["system", "internalDrive", "external"]]
+    + [f"category.{c}" for c in CATEGORIES] + [f"category.{c}.detail" for c in CATEGORIES]
+    + [f"hotspot.win.{h}" for h in WIN_HOTSPOTS] + [f"hotspot.win.{h}.detail" for h in WIN_HOTSPOTS]
+    + [f"drive.tab.{t}" for t in ["categories", "folders", "largeFiles"]]
+    + [f"docker.step{i}" for i in range(1, 5)]
+    + [f"onboarding.feature{i}" for i in range(1, 5)]
+    + [f"language.{lang}" for lang in ["system", "vi", "en"]]
+    + [f"win.help.quickStart.step{i}.{part}" for i in range(1, 5) for part in ["title", "body"]]
+    + [f"help.{t}.title" for t in ["quickStart", "severity", "folders", "duplicates"]]
+    + ["help.severity.body", "help.duplicates.body", "win.help.folders.body"]
+    + [f"win.help.{t}.{part}" for t in ["admin", "scanning", "docker", "deleting", "faq"] for part in ["title", "body"]]
+    + ["win.finding.lowSpace.critical", "win.finding.lowSpace.warning", "finding.lowSpace.external"]
+)
+
+
+def check_windows(base_tables: dict) -> list:
+    """Windows app: shared .strings + Windows overrides must cover every key the C# code uses."""
+    if not WIN_APP.exists():
+        return []
+    overlays = {lang: parse_strings(WIN_APP / "Strings" / f"{lang}.strings") for lang in LANGUAGES}
+    merged = {lang: {**base_tables[lang], **overlays[lang]} for lang in LANGUAGES}
+    keys = set(WIN_DYNAMIC_KEYS)
+    call = re.compile(r'\bT\("((?:[^"\\]|\\.)*)"')
+    for file in WIN_APP.rglob("*.cs"):
+        for key in call.findall(file.read_text(encoding="utf-8")):
+            if not key.endswith("."):
+                keys.add(key)
+    problems = []
+    for lang in LANGUAGES:
+        for key in sorted(keys - merged[lang].keys()):
+            problems.append(f"[windows/{lang}] missing key: {key}")
+    if overlays["en"].keys() != overlays["vi"].keys():
+        for key in sorted(overlays["en"].keys() ^ overlays["vi"].keys()):
+            problems.append(f"[windows] override exists in only one language: {key}")
+    for key, value in overlays["vi"].items():
+        if key in overlays["en"] and value.count("%@") != overlays["en"][key].count("%@"):
+            problems.append(f"[windows/vi] placeholder count differs for {key}")
+    if not problems:
+        print(f"Windows localization OK: {len(keys)} keys × {len(LANGUAGES)} languages")
+    return problems
+
+
 def main() -> int:
     tables = {lang: parse_strings(ROOT / "App" / "Resources" / f"{lang}.lproj" / "Localizable.strings") for lang in LANGUAGES}
     needed = used_keys()
@@ -95,6 +142,7 @@ def main() -> int:
     unused = sorted(reference.keys() - needed)
     for key in unused:
         print(f"note: unused key {key}")
+    problems += check_windows(tables)
     if problems:
         print("\n".join(problems))
         return 1
