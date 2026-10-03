@@ -1,0 +1,307 @@
+/* Clean My Mac — Tiếng Việt */
+
+"app.name" = "Clean My Mac";
+
+/* Hành động */
+"action.scanAll" = "Quét tất cả";
+"action.scanAll.help" = "Quét các ổ trong (và ổ rời nếu bạn đồng ý)";
+"action.cancelScan" = "Huỷ quét";
+"action.cancel" = "Huỷ";
+"action.later" = "Để sau";
+"action.show" = "Xem";
+"action.revealInFinder" = "Mở trong Finder";
+"action.quickLook" = "Xem nhanh";
+"action.moveToTrash" = "Chuyển vào Thùng rác";
+
+/* Thanh bên */
+"sidebar.section.overview" = "Tổng quan";
+"sidebar.section.drives" = "Ổ đĩa";
+"sidebar.section.tools" = "Công cụ";
+"sidebar.section.app" = "Ứng dụng";
+"sidebar.summary" = "Tóm tắt";
+"sidebar.duplicates" = "File trùng tên";
+"sidebar.docker" = "Docker";
+"sidebar.deletionLog" = "Nhật ký xoá";
+"sidebar.help" = "Hướng dẫn sử dụng";
+"sidebar.settings" = "Cài đặt";
+
+/* Mức độ */
+"severity.critical" = "Nghiêm trọng";
+"severity.warning" = "Cảnh báo";
+"severity.info" = "Gợi ý";
+"severity.ok" = "Ổn";
+
+/* Ổ đĩa */
+"volume.freeShort" = "còn %@";
+"volume.notScanned" = "Chưa quét";
+"volume.usedOf" = "Đã dùng %@ / %@";
+"volume.detailLine" = "%@ / %@ · còn %@ · %@ · %@";
+"volume.kind.system" = "ổ khởi động";
+"volume.kind.internalDrive" = "ổ trong";
+"volume.kind.external" = "ổ rời";
+
+/* Tóm tắt */
+"summary.title" = "Tóm tắt";
+"summary.subtitle" = "Lần quét gần nhất: %@ · %@ ổ đĩa · %@ file";
+"summary.subtitle.never" = "%@ ổ đĩa đang kết nối · chưa quét";
+"summary.notScannedYet" = "Bấm “Quét tất cả” để biết dung lượng đang được dùng vào việc gì. Cảnh báo dung lượng trống bên dưới đã được cập nhật.";
+"summary.attention" = "Cần chú ý";
+"summary.noFindings" = "Mọi thứ đều ổn. Không phát hiện vấn đề nào.";
+"summary.noFindings.unscanned" = "Chưa phát hiện vấn đề. Hãy quét để nhận gợi ý chi tiết theo thư mục.";
+"summary.drives" = "Ổ đĩa";
+"summary.usedFor" = "%@ dùng cho việc gì";
+
+/* Phát hiện */
+"finding.lowSpace.title" = "%@ chỉ còn %@ trống (%@)";
+"finding.lowSpace.critical.startup" = "Máy dễ bị lag, treo do thiếu chỗ cho bộ nhớ swap và cache. Bản cập nhật macOS thường cần khoảng 20–30 GB.";
+"finding.lowSpace.warning.startup" = "Dung lượng trống đang thấp. SSD ghi chậm hơn, snapshot Time Machine cục bộ bị xoá và ứng dụng nặng có thể chạy chậm.";
+"finding.lowSpace.external" = "Ổ này gần đầy. Có thể không chép thêm được file mới.";
+"finding.docker.title" = "Docker: %@ image <none> không còn dùng — %@";
+"finding.docker.detail" = "Image dangling sinh ra sau mỗi lần build lại, không container nào sử dụng.";
+"finding.dockerCache.title" = "Docker build cache: có thể dọn %@";
+"finding.dockerCache.detail" = "Dọn bằng “docker builder prune”. Docker sẽ tự tạo lại khi cần.";
+"finding.hotspot.title" = "%@ chiếm %@";
+"finding.duplicates.title" = "%@ nhóm file trùng tên — có thể giải phóng khoảng %@";
+"finding.duplicates.detail" = "Trùng tên không đảm bảo trùng nội dung, hãy kiểm tra trước khi xoá.";
+"finding.fda.title" = "Chưa cấp quyền Full Disk Access";
+"finding.fda.detail" = "Một số thư mục (Mail, Tin nhắn, dữ liệu ứng dụng khác) không đọc được nên kết quả chưa đầy đủ.";
+"finding.unreadable.title" = "%@: %@ thư mục không đọc được";
+"finding.unreadable.detail" = "Các thư mục này được macOS bảo vệ.";
+
+/* Thư mục đáng chú ý */
+"hotspot.xcodeDerivedData" = "Xcode DerivedData";
+"hotspot.xcodeDerivedData.detail" = "Dữ liệu build tạm, Xcode sẽ tự tạo lại khi cần.";
+"hotspot.xcodeArchives" = "Xcode Archives";
+"hotspot.xcodeArchives.detail" = "Bản archive cũ. Giữ lại bản còn cần để đọc crash log.";
+"hotspot.simulators" = "iOS Simulator";
+"hotspot.simulators.detail" = "Thiết bị và runtime simulator. Gỡ bản không dùng trong Xcode › Settings › Platforms.";
+"hotspot.userCaches" = "Cache ứng dụng";
+"hotspot.userCaches.detail" = "Ứng dụng sẽ tự tạo lại cache khi cần. Hãy thoát ứng dụng trước khi xoá cache của nó.";
+"hotspot.trash" = "Thùng rác";
+"hotspot.trash.detail" = "File trong Thùng rác vẫn chiếm dung lượng cho đến khi bạn dọn sạch Thùng rác.";
+"hotspot.iosBackups" = "Bản sao lưu iPhone/iPad";
+"hotspot.iosBackups.detail" = "Bản sao lưu thiết bị cũ. Quản lý trong Finder khi cắm thiết bị.";
+"hotspot.nodeModules" = "Thư mục node_modules";
+"hotspot.nodeModules.detail" = "Thư viện JavaScript. Chạy “npm install” để tải lại khi cần.";
+"hotspot.downloads" = "Downloads";
+"hotspot.downloads.detail" = "Bộ cài và file tải về từ lâu thường không còn cần nữa.";
+"hotspot.homebrewCache" = "Cache Homebrew";
+"hotspot.homebrewCache.detail" = "Gói tải về cũ. Chạy “brew cleanup” để xoá.";
+
+/* Phân loại */
+"category.applications" = "Ứng dụng";
+"category.applications.detail" = "Ứng dụng đã cài";
+"category.documents" = "Tài liệu";
+"category.documents.detail" = "PDF, Office, văn bản";
+"category.media" = "Ảnh & Video";
+"category.media.detail" = "Hình ảnh, phim, thư viện Ảnh";
+"category.music" = "Nhạc & Âm thanh";
+"category.music.detail" = "Bài hát, bản ghi âm, dự án";
+"category.archives" = "File nén & Bộ cài";
+"category.archives.detail" = "zip, dmg, pkg, iso";
+"category.developer" = "Lập trình";
+"category.developer.detail" = "Xcode, simulator, node_modules, cache";
+"category.caches" = "Cache";
+"category.caches.detail" = "Dữ liệu tạm của ứng dụng";
+"category.iosBackups" = "Sao lưu iOS";
+"category.iosBackups.detail" = "Bản sao lưu iPhone, iPad";
+"category.mail" = "Mail & Tin nhắn";
+"category.mail.detail" = "Hộp thư và tệp đính kèm";
+"category.trash" = "Thùng rác";
+"category.trash.detail" = "Đã xoá nhưng chưa dọn";
+"category.docker" = "Docker";
+"category.docker.detail" = "Image, container, ổ ảo";
+"category.system" = "Hệ thống";
+"category.system.detail" = "macOS và thư viện dùng chung";
+"category.other" = "Khác";
+"category.other.detail" = "Phần còn lại";
+"category.unscanned" = "Dữ liệu hệ thống & không đọc được";
+"category.unscanned.detail" = "Snapshot, swap, thư mục được bảo vệ";
+
+/* Chi tiết ổ đĩa */
+"drive.tab.categories" = "Phân loại";
+"drive.tab.folders" = "Thư mục";
+"drive.tab.largeFiles" = "File lớn";
+"drive.notScanned.title" = "Ổ này chưa được quét";
+"drive.notScanned.message" = "Quét để xem thư mục và file nào chiếm nhiều dung lượng nhất.";
+"drive.notScanned.external" = "Ổ rời chỉ được quét khi bạn yêu cầu. Ổ lớn hoặc chậm (USB 2.0, HDD) có thể mất vài phút.";
+"drive.scanThis" = "Quét ổ này";
+"drive.rescan" = "Quét lại";
+"drive.missing" = "Ổ này không còn được kết nối";
+"drive.scannedAt" = "quét lúc %@ · %@ file trong %@";
+"drive.categories.title" = "Dung lượng theo mục đích sử dụng";
+"drive.hotspots.title" = "Thư mục lớn nên kiểm tra";
+"drive.hotspots.subtitle" = "Những vị trí quen thuộc thường có thể dọn an toàn.";
+
+/* Thư mục */
+"folders.sort" = "Sắp xếp";
+"folders.sort.size" = "Dung lượng ↓";
+"folders.sort.name" = "Tên";
+"folders.sort.date" = "Ngày sửa";
+"folders.open" = "Mở";
+"folders.fileCount" = "%@ file";
+"folders.unreadable" = "Không đọc được";
+"folders.itemsSummary" = "%@ mục · %@";
+"folders.unreadableNote" = "%@ thư mục không đọc được (macOS bảo vệ hoặc chưa cấp Full Disk Access).";
+"treemap.other" = "Khác";
+"selection.summary" = "Đã chọn %@ · %@";
+
+/* File lớn */
+"largeFiles.subtitle" = "File lớn hơn %@ — tìm thấy %@";
+"largeFiles.none" = "Không có file lớn";
+"largeFiles.total" = "Tổng %@";
+
+/* Trùng tên */
+"duplicates.title" = "File trùng tên";
+"duplicates.subtitle" = "%@ nhóm · %@ file · có thể giải phóng khoảng %@";
+"duplicates.skipDev" = "Bỏ qua node_modules, .git, thư mục build";
+"duplicates.skipLibrary" = "Bỏ qua Library & hệ thống";
+"duplicates.minSize" = "Tối thiểu";
+"duplicates.anySize" = "Mọi kích thước";
+"duplicates.notice" = "Trùng tên không đảm bảo trùng nội dung. Hãy dùng Xem nhanh để kiểm tra trước khi xoá — file xoá sẽ vào Thùng rác và có thể khôi phục.";
+"duplicates.empty.title" = "Hãy quét trước";
+"duplicates.empty.message" = "Danh sách trùng tên được tạo sau khi quét xong toàn bộ các ổ đã chọn.";
+"duplicates.searching" = "Đang tìm file trùng tên…";
+"duplicates.none.title" = "Không có file trùng tên";
+"duplicates.none.message" = "Thử giảm kích thước tối thiểu hoặc bỏ bớt thư mục loại trừ.";
+"duplicates.groupSummary" = "%@ bản · tổng %@ · giữ lại bản mới nhất sẽ giải phóng %@";
+"duplicates.newest" = "Mới nhất";
+"duplicates.keepNewest" = "Chọn tất cả trừ bản mới nhất";
+"duplicates.trashSelected" = "Chuyển %@ file vào Thùng rác";
+"duplicates.keepOne" = "Cần giữ lại ít nhất một bản.";
+
+/* Docker */
+"docker.title" = "Docker";
+"docker.engine" = "Engine";
+"docker.recheck" = "Kiểm tra lại";
+"docker.checking" = "Đang kiểm tra máy đã cài Docker chưa…";
+"docker.step1" = "Đã cài Docker";
+"docker.step2" = "Docker đang chạy";
+"docker.step3" = "Đã quét image";
+"docker.step4" = "Dọn (cần xác nhận)";
+"docker.notInstalled.title" = "Máy chưa cài Docker";
+"docker.notInstalled.message" = "Không cần dọn mục này. Ứng dụng không chạy bất kỳ lệnh Docker nào.";
+"docker.notRunning.title" = "Docker đã cài nhưng chưa chạy";
+"docker.notRunning.message" = "Hãy mở Docker Desktop (hoặc OrbStack/Colima) rồi bấm Kiểm tra lại để quét image.";
+"docker.openApp" = "Mở Docker";
+"docker.failed" = "Không đọc được thông tin Docker.";
+"docker.stat.dangling" = "Image <none>";
+"docker.stat.images" = "%@ image";
+"docker.stat.allImages" = "Tất cả image";
+"docker.stat.reclaimable" = "có thể dọn %@";
+"docker.stat.buildCache" = "Build cache";
+"docker.stat.virtualDisk" = "Docker.raw trên đĩa";
+"docker.stat.virtualDiskCaption" = "File ổ ảo";
+"docker.noDangling" = "Không có image <none> thừa. Docker đang gọn gàng.";
+"docker.danglingList" = "Image <none> không còn dùng";
+"docker.selectAll" = "Chọn tất cả";
+"docker.selectNone" = "Bỏ chọn tất cả";
+"docker.selected" = "Đã chọn %@ image · %@";
+"docker.removeButton" = "Xoá %@ image";
+"docker.confirmTitle" = "Xoá %@ image <none> (%@)?";
+"docker.confirmMessage" = "Image được xoá bằng “docker image rm” không kèm --force, nên image đang được container dùng sẽ được giữ lại.";
+"docker.removeFailed" = "Một số image không xoá được (có thể vẫn đang được container sử dụng).";
+"docker.note" = "Lưu ý: với Docker Desktop, file Docker.raw không nhỏ lại ngay sau khi xoá image. Image đang được container sử dụng sẽ không bao giờ bị xoá.";
+
+/* Ổ rời */
+"external.title" = "Phát hiện %@ ổ đĩa rời";
+"external.message" = "Bạn có muốn quét luôn các ổ này không?";
+"external.volumeDetail" = "%@ · %@ · đã dùng %@";
+"external.remember" = "Ghi nhớ lựa chọn cho các lần sau";
+"external.internalOnly" = "Chỉ quét ổ trong";
+"external.scanSelected" = "Quét %@ ổ đã chọn";
+"mount.title" = "Đã kết nối ổ rời";
+"mount.message" = "Ổ “%@” (%@) vừa được kết nối. Quét ngay?";
+"mount.scanNow" = "Quét ngay";
+
+/* Đang quét */
+"scan.scanning" = "Đang quét %@…";
+"scan.volumeIndex" = "Ổ %@/%@";
+"scan.files" = "%@ file";
+
+/* Thùng rác */
+"trash.confirmTitle" = "Chuyển %@ mục (%@) vào Thùng rác?";
+"trash.confirmMessage" = "Bạn có thể khôi phục từ Thùng rác bằng “Đưa trở lại”.";
+"trash.andMore" = "…và %@ mục khác";
+"trash.blocked" = "%@ mục được bảo vệ (thư mục hệ thống hoặc thư mục quan trọng) sẽ được bỏ qua.";
+"trash.someFailed" = "Một số mục không chuyển vào Thùng rác được.";
+
+/* Nhật ký xoá */
+"log.title" = "Nhật ký xoá";
+"log.subtitle" = "Ứng dụng đã dọn %@";
+"log.openTrash" = "Mở Thùng rác";
+"log.clear" = "Xoá nhật ký";
+"log.clearConfirm" = "Xoá nhật ký? File trong Thùng rác không bị ảnh hưởng.";
+"log.empty" = "Chưa xoá mục nào";
+"log.restoreHint" = "File được chuyển vào Thùng rác chứ không bị xoá hẳn. Để khôi phục: mở Thùng rác, chuột phải vào file › Đưa trở lại.";
+
+/* Full Disk Access & màn hình chào */
+"fda.granted" = "Đã cấp";
+"fda.missing" = "Chưa cấp";
+"onboarding.title" = "Chào mừng đến với Clean My Mac";
+"onboarding.subtitle" = "Biết rõ dung lượng đang dùng vào đâu — và dọn dẹp an toàn.";
+"onboarding.feature1" = "Quét từng ổ đĩa, xem dung lượng theo mục đích sử dụng, thư mục lớn nhất lên đầu.";
+"onboarding.feature2" = "Tìm file trùng tên trên tất cả các ổ đã quét.";
+"onboarding.feature3" = "Tìm image Docker <none> không còn dùng (chỉ khi máy có cài Docker).";
+"onboarding.feature4" = "Mọi thứ bạn xoá đều vào Thùng rác trước — không xoá vĩnh viễn.";
+"onboarding.fdaTitle" = "Cấp quyền Full Disk Access";
+"onboarding.fdaBody" = "Cài đặt hệ thống › Quyền riêng tư & Bảo mật › Toàn quyền truy cập ổ đĩa › bật Clean My Mac. Nếu không, một số thư mục sẽ bị bỏ qua.";
+"onboarding.openSettings" = "Mở Cài đặt hệ thống";
+"onboarding.recheck" = "Kiểm tra lại";
+"onboarding.continue" = "Bắt đầu";
+
+/* Cài đặt */
+"settings.general" = "Chung";
+"settings.language" = "Ngôn ngữ";
+"language.system" = "Theo macOS";
+"language.vi" = "Tiếng Việt";
+"language.en" = "English";
+"settings.externalDrives" = "Ổ rời khi bấm “Quét tất cả”";
+"settings.external.ask" = "Luôn hỏi";
+"settings.external.always" = "Luôn quét";
+"settings.external.never" = "Không quét";
+"settings.largeFileMin" = "Ngưỡng file lớn";
+"settings.thresholds" = "Cảnh báo dung lượng trống";
+"settings.criticalBytes" = "Nghiêm trọng khi dưới (ổ khởi động)";
+"settings.criticalRatio" = "Nghiêm trọng khi dưới (mọi ổ)";
+"settings.warningBytes" = "Cảnh báo khi dưới (ổ khởi động)";
+"settings.warningRatio" = "Cảnh báo khi dưới (mọi ổ)";
+"settings.thresholds.footer" = "Ngưỡng GB chỉ áp dụng cho ổ khởi động vì macOS cần chỗ trống ở đó cho swap, cache và bản cập nhật. Ngưỡng phần trăm áp dụng cho mọi ổ.";
+"settings.permissions" = "Quyền truy cập";
+"settings.fda" = "Full Disk Access";
+"settings.about" = "Thông tin";
+"settings.version" = "Phiên bản";
+"settings.showOnboarding" = "Hiện màn hình chào";
+"settings.reset" = "Khôi phục mặc định";
+
+/* Hướng dẫn sử dụng */
+"help.toc" = "Mục lục";
+"help.quickStart.title" = "Bắt đầu nhanh";
+"help.quickStart.step1.title" = "Cấp quyền Full Disk Access";
+"help.quickStart.step1.body" = "Mở Cài đặt hệ thống › Quyền riêng tư & Bảo mật › Toàn quyền truy cập ổ đĩa, bật Clean My Mac. Không có quyền này, một số thư mục sẽ bị bỏ qua và kết quả không đầy đủ.";
+"help.quickStart.step2.title" = "Bấm “Quét tất cả” (⌘R)";
+"help.quickStart.step2.body" = "Các ổ trong được quét ngay. Nếu có ổ rời đang cắm, ứng dụng sẽ hỏi bạn muốn quét ổ nào. Bạn có thể huỷ quét bất cứ lúc nào (⌘.).";
+"help.quickStart.step3.title" = "Xem Tóm tắt";
+"help.quickStart.step3.body" = "Các mục được xếp theo mức độ: Nghiêm trọng, Cảnh báo, Gợi ý. Bấm “Xem” để đi tới thư mục, Docker hoặc danh sách trùng tên tương ứng.";
+"help.quickStart.step4.title" = "Dọn dẹp an toàn";
+"help.quickStart.step4.body" = "Mọi file xoá đều vào Thùng rác — khôi phục bằng “Đưa trở lại” trong Finder. Thư mục hệ thống được khoá, không thể xoá nhầm.";
+"help.fullDiskAccess.title" = "Cấp quyền Full Disk Access";
+"help.fullDiskAccess.body" = "macOS bảo vệ một số thư mục (Mail, Tin nhắn, Safari, dữ liệu của ứng dụng khác). Ứng dụng chỉ đọc được chúng khi có quyền Full Disk Access.\n\n1. Mở Cài đặt hệ thống › Quyền riêng tư & Bảo mật › Toàn quyền truy cập ổ đĩa.\n2. Bật Clean My Mac (bấm “+” để thêm nếu chưa có trong danh sách).\n3. Quay lại ứng dụng và bấm “Kiểm tra lại”. Nếu vẫn “Chưa cấp”, hãy thoát và mở lại ứng dụng.\n\nClean My Mac chỉ đọc tên và dung lượng file. Không có dữ liệu nào được gửi ra ngoài.";
+"help.scanning.title" = "Quét ổ trong & ổ rời";
+"help.scanning.body" = "“Quét tất cả” quét ổ khởi động và các ổ trong khác. Ổ rời (USB, SSD, thẻ SD) được liệt kê trước và chỉ được quét sau khi bạn xác nhận — bạn có thể chọn từng ổ. Chọn “Ghi nhớ lựa chọn” để lần sau không hỏi lại (đổi lại trong Cài đặt).\n\nKhi bạn cắm ổ mới lúc ứng dụng đang mở, ứng dụng sẽ hỏi có muốn quét ổ đó không.\n\nDung lượng hiển thị là dung lượng thực chiếm trên đĩa. File hardlink chỉ tính một lần, symlink không bị đi theo và không quét lấn sang ổ khác, nên con số không bị thổi phồng.\n\nPhần “Dữ liệu hệ thống & không đọc được” trên thanh dung lượng là phần macOS dùng nhưng không liệt kê được: snapshot APFS, swap, thư mục hệ thống được bảo vệ.";
+"help.severity.title" = "Đọc mức độ cảnh báo";
+"help.severity.body" = "Mỗi mục có một mức độ để bạn biết việc nào cần làm trước.\n\nSSD chạy chậm khi gần đầy: macOS cần chỗ trống trên ổ khởi động cho bộ nhớ ảo (swap), cache, snapshot APFS và bản cập nhật hệ thống. Khi hết chỗ, ứng dụng bị treo và cập nhật thất bại.\n\nCác ngưỡng dưới đây có thể chỉnh trong Cài đặt.";
+"help.severity.tableTitle" = "Mức dung lượng trống khuyến nghị";
+"help.severity.critical" = "Ổ khởi động còn dưới %@, hoặc bất kỳ ổ nào còn dưới %@";
+"help.severity.warning" = "Ổ khởi động còn dưới %@, hoặc bất kỳ ổ nào còn dưới %@";
+"help.severity.ok" = "Trên các ngưỡng trên. Thư mục lớn có thể dọn được hiển thị dạng Gợi ý.";
+"help.folders.title" = "Duyệt thư mục & Treemap";
+"help.folders.body" = "Mở một ổ đĩa và chọn “Thư mục”. Danh sách được sắp xếp từ lớn đến nhỏ; treemap hiển thị các thư mục đó thành các ô có diện tích theo dung lượng.\n\nNháy đúp vào thư mục (trong danh sách hoặc treemap) để mở, dùng đường dẫn phía trên để quay lại. Chuột phải để Mở trong Finder, Xem nhanh và Chuyển vào Thùng rác.\n\n“Phân loại” hiển thị dung lượng theo mục đích (ứng dụng, ảnh, lập trình, cache…). “File lớn” liệt kê những file lớn nhất trên ổ.";
+"help.duplicates.title" = "File trùng tên";
+"help.duplicates.body" = "Sau khi quét, các file có cùng tên trên mọi ổ đã quét được gom thành nhóm. Tên được so sánh không phân biệt chữ hoa/thường và cách mã hoá dấu tiếng Việt.\n\nCác nhóm được sắp xếp theo dung lượng giải phóng được nếu chỉ giữ lại bản mới nhất. Mặc định bỏ qua node_modules, .git, thư mục build, gói ứng dụng, ~/Library và thư mục hệ thống, và bỏ qua file nhỏ hơn 1 MB.\n\nQuan trọng: trùng tên không có nghĩa là trùng nội dung. Hãy dùng Xem nhanh từng bản trước khi chuyển vào Thùng rác.";
+"help.docker.title" = "Dọn Docker";
+"help.docker.body" = "Trang Docker hoạt động theo từng bước:\n1. Máy đã cài Docker chưa? Nếu chưa, ứng dụng dừng lại và không chạy lệnh nào.\n2. Docker có đang chạy không? Nếu chưa, hãy mở Docker Desktop (hoặc OrbStack/Colima) rồi bấm “Kiểm tra lại”.\n3. Liệt kê image có tag <none> (dangling) — phần thừa sau khi build lại image, không container nào dùng.\n4. Xoá các image bạn chọn, sau khi xác nhận.\n\nImage được xoá không kèm --force, nên Docker sẽ từ chối xoá image vẫn đang được container sử dụng.\n\nVới Docker Desktop, file ổ ảo Docker.raw có thể không nhỏ lại ngay sau khi dọn.";
+"help.deleting.title" = "Xoá & khôi phục file";
+"help.deleting.body" = "Clean My Mac không bao giờ xoá vĩnh viễn. Mọi thứ đều vào Thùng rác (với ổ rời là Thùng rác riêng của ổ đó). Để khôi phục, mở Thùng rác, chuột phải vào file và chọn “Đưa trở lại”.\n\nThư mục hệ thống (/System, /Library, /usr…), thư mục người dùng, Documents, Desktop, Downloads, thư mục gốc của mỗi ổ và chính ứng dụng đều được khoá.\n\nNhật ký xoá liệt kê mọi thứ ứng dụng đã dọn. Dung lượng chỉ thực sự được giải phóng sau khi bạn dọn sạch Thùng rác.";
+"help.faq.title" = "Câu hỏi thường gặp";
+"help.faq.body" = "Vì sao tổng dung lượng khác với “Giới thiệu về máy Mac này”?\nmacOS tính cả snapshot APFS, swap và dung lượng có thể giải phóng (purgeable) — những phần không liệt kê được thành file. Chúng được hiển thị là “Dữ liệu hệ thống & không đọc được”.\n\nVì sao một số thư mục bị khoá?\nChúng được macOS bảo vệ. Hãy cấp Full Disk Access, hoặc đó là thư mục hệ thống không nên đụng vào.\n\nmacOS báo ứng dụng đến từ nhà phát triển không xác định?\nNếu bạn tự build, ứng dụng được ký cục bộ. Mở Cài đặt hệ thống › Quyền riêng tư & Bảo mật và bấm “Vẫn mở”.\n\nHỗ trợ phiên bản macOS nào?\nmacOS 13 Ventura trở lên, trên cả máy Apple silicon và Intel.";

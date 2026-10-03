@@ -1,0 +1,307 @@
+/* Clean My Mac — English */
+
+"app.name" = "Clean My Mac";
+
+/* Actions */
+"action.scanAll" = "Scan All";
+"action.scanAll.help" = "Scan internal drives (and external drives if you confirm)";
+"action.cancelScan" = "Cancel Scan";
+"action.cancel" = "Cancel";
+"action.later" = "Later";
+"action.show" = "Show";
+"action.revealInFinder" = "Show in Finder";
+"action.quickLook" = "Quick Look";
+"action.moveToTrash" = "Move to Trash";
+
+/* Sidebar */
+"sidebar.section.overview" = "Overview";
+"sidebar.section.drives" = "Drives";
+"sidebar.section.tools" = "Tools";
+"sidebar.section.app" = "App";
+"sidebar.summary" = "Summary";
+"sidebar.duplicates" = "Duplicate Names";
+"sidebar.docker" = "Docker";
+"sidebar.deletionLog" = "Deletion Log";
+"sidebar.help" = "User Guide";
+"sidebar.settings" = "Settings";
+
+/* Severity */
+"severity.critical" = "Critical";
+"severity.warning" = "Warning";
+"severity.info" = "Tip";
+"severity.ok" = "Healthy";
+
+/* Volumes */
+"volume.freeShort" = "%@ free";
+"volume.notScanned" = "Not scanned";
+"volume.usedOf" = "%@ of %@ used";
+"volume.detailLine" = "%@ / %@ · %@ free · %@ · %@";
+"volume.kind.system" = "startup disk";
+"volume.kind.internalDrive" = "internal";
+"volume.kind.external" = "external";
+
+/* Summary */
+"summary.title" = "Summary";
+"summary.subtitle" = "Last scan: %@ · %@ drive(s) · %@ files";
+"summary.subtitle.never" = "%@ drive(s) connected · not scanned yet";
+"summary.notScannedYet" = "Press “Scan All” to find out what is using your disk space. Free space warnings below are already live.";
+"summary.attention" = "Needs attention";
+"summary.noFindings" = "Everything looks good. No problems found.";
+"summary.noFindings.unscanned" = "No problems detected so far. Scan to get folder-level advice.";
+"summary.drives" = "Drives";
+"summary.usedFor" = "What %@ is used for";
+
+/* Findings */
+"finding.lowSpace.title" = "%@ has only %@ free (%@)";
+"finding.lowSpace.critical.startup" = "Your Mac may slow down or freeze: macOS needs free space for memory swap and caches. System updates usually need 20–30 GB.";
+"finding.lowSpace.warning.startup" = "Free space is getting low. SSD writes slow down, local Time Machine snapshots get purged and heavy apps may lag.";
+"finding.lowSpace.external" = "This drive is almost full. New files may fail to copy.";
+"finding.docker.title" = "Docker: %@ unused <none> images — %@";
+"finding.docker.detail" = "Dangling images are left behind after rebuilding an image. No container uses them.";
+"finding.dockerCache.title" = "Docker build cache: %@ reclaimable";
+"finding.dockerCache.detail" = "Can be cleared with “docker builder prune”. Docker rebuilds it when needed.";
+"finding.hotspot.title" = "%@ uses %@";
+"finding.duplicates.title" = "%@ groups of duplicate file names — about %@ can be freed";
+"finding.duplicates.detail" = "Same name does not guarantee same content. Check before deleting.";
+"finding.fda.title" = "Full Disk Access is not granted";
+"finding.fda.detail" = "Some folders (Mail, Messages, other apps’ data) cannot be read, so results are incomplete.";
+"finding.unreadable.title" = "%@: %@ folders could not be read";
+"finding.unreadable.detail" = "These folders are protected by macOS.";
+
+/* Hotspots */
+"hotspot.xcodeDerivedData" = "Xcode DerivedData";
+"hotspot.xcodeDerivedData.detail" = "Temporary build data. Xcode recreates it automatically.";
+"hotspot.xcodeArchives" = "Xcode Archives";
+"hotspot.xcodeArchives.detail" = "Old app archives. Keep the ones you still need to symbolicate crashes.";
+"hotspot.simulators" = "iOS Simulators";
+"hotspot.simulators.detail" = "Simulator devices and runtimes. Remove unused ones in Xcode › Settings › Platforms.";
+"hotspot.userCaches" = "App caches";
+"hotspot.userCaches.detail" = "Apps rebuild their caches when needed. Quit an app before clearing its cache.";
+"hotspot.trash" = "Trash";
+"hotspot.trash.detail" = "Files in the Trash still take space until you empty it.";
+"hotspot.iosBackups" = "iPhone/iPad backups";
+"hotspot.iosBackups.detail" = "Old device backups. Manage them in Finder when the device is connected.";
+"hotspot.nodeModules" = "node_modules folders";
+"hotspot.nodeModules.detail" = "JavaScript dependencies. Run “npm install” to get them back.";
+"hotspot.downloads" = "Downloads";
+"hotspot.downloads.detail" = "Installers and files you downloaded long ago are often no longer needed.";
+"hotspot.homebrewCache" = "Homebrew cache";
+"hotspot.homebrewCache.detail" = "Old package downloads. Run “brew cleanup” to remove them.";
+
+/* Categories */
+"category.applications" = "Applications";
+"category.applications.detail" = "Installed apps";
+"category.documents" = "Documents";
+"category.documents.detail" = "PDF, Office, text";
+"category.media" = "Photos & Videos";
+"category.media.detail" = "Images, movies, Photos library";
+"category.music" = "Music & Audio";
+"category.music.detail" = "Songs, recordings, projects";
+"category.archives" = "Archives & Installers";
+"category.archives.detail" = "zip, dmg, pkg, iso";
+"category.developer" = "Developer";
+"category.developer.detail" = "Xcode, simulators, node_modules, caches";
+"category.caches" = "Caches";
+"category.caches.detail" = "Temporary app data";
+"category.iosBackups" = "iOS Backups";
+"category.iosBackups.detail" = "iPhone and iPad backups";
+"category.mail" = "Mail & Messages";
+"category.mail.detail" = "Mailboxes and attachments";
+"category.trash" = "Trash";
+"category.trash.detail" = "Deleted but not emptied";
+"category.docker" = "Docker";
+"category.docker.detail" = "Images, containers, virtual disk";
+"category.system" = "System";
+"category.system.detail" = "macOS and shared libraries";
+"category.other" = "Other";
+"category.other.detail" = "Everything else";
+"category.unscanned" = "System data & unreadable";
+"category.unscanned.detail" = "Snapshots, swap, protected folders";
+
+/* Drive detail */
+"drive.tab.categories" = "Categories";
+"drive.tab.folders" = "Folders";
+"drive.tab.largeFiles" = "Large Files";
+"drive.notScanned.title" = "This drive has not been scanned yet";
+"drive.notScanned.message" = "Scan it to see which folders and files take the most space.";
+"drive.notScanned.external" = "External drives are only scanned when you ask. Large or slow drives (USB 2.0, HDD) can take a few minutes.";
+"drive.scanThis" = "Scan This Drive";
+"drive.rescan" = "Rescan";
+"drive.missing" = "This drive is no longer connected";
+"drive.scannedAt" = "scanned %@ · %@ files in %@";
+"drive.categories.title" = "Space by purpose";
+"drive.hotspots.title" = "Large folders worth checking";
+"drive.hotspots.subtitle" = "Well-known locations that are usually safe to clean.";
+
+/* Folders */
+"folders.sort" = "Sort by";
+"folders.sort.size" = "Size ↓";
+"folders.sort.name" = "Name";
+"folders.sort.date" = "Date modified";
+"folders.open" = "Open";
+"folders.fileCount" = "%@ files";
+"folders.unreadable" = "Cannot be read";
+"folders.itemsSummary" = "%@ items · %@";
+"folders.unreadableNote" = "%@ folders could not be read (protected by macOS or missing Full Disk Access).";
+"treemap.other" = "Other";
+"selection.summary" = "Selected %@ · %@";
+
+/* Large files */
+"largeFiles.subtitle" = "Files larger than %@ — %@ found";
+"largeFiles.none" = "No large files found";
+"largeFiles.total" = "Total %@";
+
+/* Duplicates */
+"duplicates.title" = "Duplicate File Names";
+"duplicates.subtitle" = "%@ groups · %@ files · about %@ can be freed";
+"duplicates.skipDev" = "Skip node_modules, .git, build folders";
+"duplicates.skipLibrary" = "Skip Library & system";
+"duplicates.minSize" = "Minimum";
+"duplicates.anySize" = "Any size";
+"duplicates.notice" = "Same name does not guarantee same content. Use Quick Look before deleting — removed files go to the Trash and can be restored.";
+"duplicates.empty.title" = "Scan first";
+"duplicates.empty.message" = "Duplicate names are listed after all selected drives have been scanned.";
+"duplicates.searching" = "Looking for duplicate names…";
+"duplicates.none.title" = "No duplicate names";
+"duplicates.none.message" = "Try lowering the minimum size or including more folders.";
+"duplicates.groupSummary" = "%@ copies · %@ in total · keeping the newest frees %@";
+"duplicates.newest" = "Newest";
+"duplicates.keepNewest" = "Select all except newest";
+"duplicates.trashSelected" = "Move %@ to Trash";
+"duplicates.keepOne" = "Keep at least one copy.";
+
+/* Docker */
+"docker.title" = "Docker";
+"docker.engine" = "Engine";
+"docker.recheck" = "Check Again";
+"docker.checking" = "Checking whether Docker is installed…";
+"docker.step1" = "Docker installed";
+"docker.step2" = "Docker running";
+"docker.step3" = "Images scanned";
+"docker.step4" = "Clean (with confirmation)";
+"docker.notInstalled.title" = "Docker is not installed on this Mac";
+"docker.notInstalled.message" = "Nothing to clean here. The app did not run any Docker command.";
+"docker.notRunning.title" = "Docker is installed but not running";
+"docker.notRunning.message" = "Start Docker Desktop (or OrbStack/Colima), then check again to scan images.";
+"docker.openApp" = "Open Docker";
+"docker.failed" = "Could not read Docker information.";
+"docker.stat.dangling" = "<none> images";
+"docker.stat.images" = "%@ images";
+"docker.stat.allImages" = "All images";
+"docker.stat.reclaimable" = "%@ reclaimable";
+"docker.stat.buildCache" = "Build cache";
+"docker.stat.virtualDisk" = "Docker.raw on disk";
+"docker.stat.virtualDiskCaption" = "Virtual disk file";
+"docker.noDangling" = "No unused <none> images. Docker is tidy.";
+"docker.danglingList" = "Unused <none> images";
+"docker.selectAll" = "Select all";
+"docker.selectNone" = "Select none";
+"docker.selected" = "Selected %@ images · %@";
+"docker.removeButton" = "Remove %@ images";
+"docker.confirmTitle" = "Remove %@ <none> images (%@)?";
+"docker.confirmMessage" = "Images are removed with “docker image rm” without --force, so any image used by a container is kept.";
+"docker.removeFailed" = "Some images could not be removed (probably still used by a container).";
+"docker.note" = "With Docker Desktop the Docker.raw file does not shrink immediately after removing images. Images used by containers are never removed.";
+
+/* External drives */
+"external.title" = "%@ external drive(s) detected";
+"external.message" = "Do you also want to scan these drives?";
+"external.volumeDetail" = "%@ · %@ · %@ used";
+"external.remember" = "Remember my choice";
+"external.internalOnly" = "Internal Drives Only";
+"external.scanSelected" = "Scan %@ Selected";
+"mount.title" = "External drive connected";
+"mount.message" = "“%@” (%@) was connected. Scan it now?";
+"mount.scanNow" = "Scan Now";
+
+/* Scanning */
+"scan.scanning" = "Scanning %@…";
+"scan.volumeIndex" = "Drive %@ of %@";
+"scan.files" = "%@ files";
+
+/* Trash */
+"trash.confirmTitle" = "Move %@ items (%@) to the Trash?";
+"trash.confirmMessage" = "You can restore them from the Trash with “Put Back”.";
+"trash.andMore" = "…and %@ more";
+"trash.blocked" = "%@ protected items (system folders or essential folders) will be skipped.";
+"trash.someFailed" = "Some items could not be moved to the Trash.";
+
+/* Deletion log */
+"log.title" = "Deletion Log";
+"log.subtitle" = "%@ removed by this app";
+"log.openTrash" = "Open Trash";
+"log.clear" = "Clear Log";
+"log.clearConfirm" = "Clear the deletion log? Files in the Trash are not affected.";
+"log.empty" = "Nothing removed yet";
+"log.restoreHint" = "Files are moved to the Trash, not deleted. To restore: open the Trash, right-click the file › Put Back.";
+
+/* Full Disk Access & onboarding */
+"fda.granted" = "Granted";
+"fda.missing" = "Not granted";
+"onboarding.title" = "Welcome to Clean My Mac";
+"onboarding.subtitle" = "See what fills your disk — and clean it safely.";
+"onboarding.feature1" = "Scan each drive and see space by purpose, largest folders first.";
+"onboarding.feature2" = "Find files with the same name across all your drives.";
+"onboarding.feature3" = "Find unused Docker <none> images (only if Docker is installed).";
+"onboarding.feature4" = "Everything you remove goes to the Trash first — nothing is deleted permanently.";
+"onboarding.fdaTitle" = "Allow Full Disk Access";
+"onboarding.fdaBody" = "System Settings › Privacy & Security › Full Disk Access › turn on Clean My Mac. Without it, some folders are skipped.";
+"onboarding.openSettings" = "Open System Settings";
+"onboarding.recheck" = "Check Again";
+"onboarding.continue" = "Get Started";
+
+/* Settings */
+"settings.general" = "General";
+"settings.language" = "Language";
+"language.system" = "Same as macOS";
+"language.vi" = "Tiếng Việt";
+"language.en" = "English";
+"settings.externalDrives" = "External drives on “Scan All”";
+"settings.external.ask" = "Ask every time";
+"settings.external.always" = "Always scan";
+"settings.external.never" = "Never scan";
+"settings.largeFileMin" = "Large file threshold";
+"settings.thresholds" = "Free space warnings";
+"settings.criticalBytes" = "Critical below (startup disk)";
+"settings.criticalRatio" = "Critical below (any drive)";
+"settings.warningBytes" = "Warning below (startup disk)";
+"settings.warningRatio" = "Warning below (any drive)";
+"settings.thresholds.footer" = "GB limits apply to the startup disk only, because macOS needs room there for swap, caches and updates. Percentages apply to every drive.";
+"settings.permissions" = "Permissions";
+"settings.fda" = "Full Disk Access";
+"settings.about" = "About";
+"settings.version" = "Version";
+"settings.showOnboarding" = "Show Welcome Screen";
+"settings.reset" = "Reset to Defaults";
+
+/* User guide */
+"help.toc" = "Contents";
+"help.quickStart.title" = "Quick start";
+"help.quickStart.step1.title" = "Grant Full Disk Access";
+"help.quickStart.step1.body" = "Open System Settings › Privacy & Security › Full Disk Access and turn on Clean My Mac. Without it some folders are skipped and results are incomplete.";
+"help.quickStart.step2.title" = "Press “Scan All” (⌘R)";
+"help.quickStart.step2.body" = "Internal drives are scanned right away. If external drives are connected, the app asks which ones to include. You can cancel at any time (⌘.).";
+"help.quickStart.step3.title" = "Read the Summary";
+"help.quickStart.step3.body" = "Findings are sorted by severity: Critical, Warning, Tip. Press “Show” to jump to the folder, Docker or duplicate list behind each one.";
+"help.quickStart.step4.title" = "Clean up safely";
+"help.quickStart.step4.body" = "Everything you remove goes to the Trash and can be restored with “Put Back” in Finder. System folders are locked and cannot be removed by mistake.";
+"help.fullDiskAccess.title" = "Full Disk Access";
+"help.fullDiskAccess.body" = "macOS protects some folders (Mail, Messages, Safari, other apps’ containers). Apps can read them only with Full Disk Access.\n\n1. Open System Settings › Privacy & Security › Full Disk Access.\n2. Turn on Clean My Mac (use “+” to add it if it is not listed).\n3. Return to the app and press “Check Again”. If it still shows “Not granted”, quit and reopen the app.\n\nClean My Mac only reads file names and sizes. Nothing is uploaded anywhere.";
+"help.scanning.title" = "Scanning drives";
+"help.scanning.body" = "“Scan All” scans the startup disk and other internal drives. External drives (USB, SSD, SD card) are listed first and only scanned after you confirm — you can tick which ones. Choose “Remember my choice” to skip the question next time (change it later in Settings).\n\nWhen you plug in a drive while the app is open, it offers to scan it.\n\nSizes are the space actually used on disk. Hard-linked files are counted once, symbolic links are not followed and other drives are never entered, so totals are not inflated.\n\nThe “System data & unreadable” part of the bar is space macOS uses that cannot be listed: APFS snapshots, swap, protected system folders.";
+"help.severity.title" = "Severity levels";
+"help.severity.body" = "Each finding has a level so you can see what matters first.\n\nSSDs slow down when they are nearly full: macOS needs free space on the startup disk for virtual memory (swap), caches, APFS snapshots and system updates. When space runs out, apps freeze and updates fail.\n\nThe limits below can be changed in Settings.";
+"help.severity.tableTitle" = "Recommended free space";
+"help.severity.critical" = "Startup disk below %@, or any drive below %@ free";
+"help.severity.warning" = "Startup disk below %@, or any drive below %@ free";
+"help.severity.ok" = "Above those limits. Large cleanable folders are shown as Tips.";
+"help.folders.title" = "Folders & treemap";
+"help.folders.body" = "Open a drive and choose “Folders”. The list is sorted largest first; the treemap shows the same folders as rectangles sized by space.\n\nDouble-click a folder (in the list or the treemap) to open it, use the path at the top to go back. Right-click for Show in Finder, Quick Look and Move to Trash.\n\n“Categories” shows space by purpose (apps, photos, developer files, caches…). “Large Files” lists the biggest files on the drive.";
+"help.duplicates.title" = "Duplicate file names";
+"help.duplicates.body" = "After scanning, files that share the same name on any scanned drive are grouped together. Names are compared ignoring upper/lower case and Vietnamese accent encoding.\n\nGroups are sorted by how much space you would free by keeping only the newest copy. By default node_modules, .git, build folders, app bundles, ~/Library and system folders are skipped, and files under 1 MB are ignored.\n\nImportant: the same name does not mean the same content. Use Quick Look on each copy before moving anything to the Trash.";
+"help.docker.title" = "Cleaning Docker";
+"help.docker.body" = "The Docker page works step by step:\n1. Is Docker installed? If not, nothing else happens and no command is run.\n2. Is Docker running? If not, open Docker Desktop (or OrbStack/Colima) and press “Check Again”.\n3. List images tagged <none> (dangling) — leftovers from rebuilding images that no container uses.\n4. Remove the ones you select, after confirmation.\n\nImages are removed without --force, so Docker refuses to remove any image still used by a container.\n\nWith Docker Desktop, the virtual disk file Docker.raw may not shrink right away after cleaning.";
+"help.deleting.title" = "Deleting & restoring";
+"help.deleting.body" = "Clean My Mac never deletes files permanently. Everything goes to the Trash (on external drives, to that drive’s own Trash). To restore, open the Trash, right-click the file and choose “Put Back”.\n\nSystem folders (/System, /Library, /usr…), your home folder, Documents, Desktop, Downloads, the root of each drive and the app itself are locked.\n\nThe Deletion Log lists everything removed by the app. Space is freed for good only after you empty the Trash.";
+"help.faq.title" = "FAQ";
+"help.faq.body" = "Why does the total differ from “About This Mac”?\nmacOS counts APFS snapshots, swap and purgeable space that cannot be listed as files. They are shown as “System data & unreadable”.\n\nWhy are some folders locked?\nThey are protected by macOS. Grant Full Disk Access, or they belong to the system and should not be touched.\n\nThe app says it is from an unidentified developer.\nIf you built it yourself it is signed locally. Open System Settings › Privacy & Security and click “Open Anyway”.\n\nWhich macOS versions are supported?\nmacOS 13 Ventura and later, on Apple silicon and Intel Macs.";
