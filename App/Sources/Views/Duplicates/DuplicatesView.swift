@@ -90,6 +90,7 @@ struct DuplicatesView: View {
                     Text(l.bytes(group.reclaimableSize)).font(.body.weight(.semibold).monospacedDigit())
                         .frame(width: 78, alignment: .trailing)
                 }
+                .help(group.displayName)
                 .tag(group.id)
             }
         }
