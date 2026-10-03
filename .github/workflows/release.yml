@@ -9,6 +9,28 @@ permissions:
   contents: write
 
 jobs:
+  windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - { arch: x64, rid: win-x64 }
+          - { arch: ARM64, rid: win-arm64 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Publish
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart("v")
+          dotnet publish windows/src/CleanMyMac.App/CleanMyMac.App.csproj -c Release -r ${{ matrix.rid }} -p:Platform=${{ matrix.arch }} -p:Version=$version -o windows/artifacts/${{ matrix.rid }}
+          Compress-Archive -Path "windows/artifacts/${{ matrix.rid }}/*" -DestinationPath "CleanMyMac-$version-windows-${{ matrix.arch }}.zip"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: CleanMyMac-*-windows-*.zip
+
   release:
     runs-on: macos-15
     steps:
