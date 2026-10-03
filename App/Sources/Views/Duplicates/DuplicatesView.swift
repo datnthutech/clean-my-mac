@@ -16,20 +16,15 @@ struct DuplicatesView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            ScreenHeader(title: l.t("duplicates.title"), subtitle: subtitle) {
-                HStack(spacing: 12) {
-                    Toggle(l.t("duplicates.skipDev"), isOn: optionBinding(\.skipDeveloperFolders))
-                    Toggle(l.t("duplicates.skipLibrary"), isOn: optionBinding(\.skipLibraryAndSystem))
-                    Picker(l.t("duplicates.minSize"), selection: optionBinding(\.minimumSize)) {
-                        ForEach(Self.sizeOptions, id: \.self) { size in
-                            Text(size == 0 ? l.t("duplicates.anySize") : l.bytes(size)).tag(size)
-                        }
-                    }
-                    .frame(width: 190)
-                }
-                .toggleStyle(.checkbox)
-                .disabled(state.isBusy)
+            ScreenHeader(title: l.t("duplicates.title"), subtitle: subtitle)
+            // Filters get their own row and stack vertically when the window is too narrow,
+            // so long (Vietnamese) labels can never push the page wider than the window.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 16) { filterControls }
+                VStack(alignment: .leading, spacing: 8) { filterControls }
             }
+            .toggleStyle(.checkbox)
+            .disabled(state.isBusy)
             NoticeBanner(text: l.t("duplicates.notice"))
 
             if state.scans.isEmpty {
@@ -41,13 +36,32 @@ struct DuplicatesView: View {
                 EmptyStateView(symbol: "checkmark.circle", title: l.t("duplicates.none.title"), message: l.t("duplicates.none.message"))
             } else {
                 HStack(alignment: .top, spacing: 16) {
-                    groupList.frame(width: 360)
-                    groupDetail
+                    groupList.frame(minWidth: 220, idealWidth: 280, maxWidth: 320)
+                    groupDetail.frame(minWidth: 380, maxWidth: .infinity).layoutPriority(1)
                 }
             }
         }
         .padding(24)
         .quickLookPreview($previewURL)
+    }
+
+    @ViewBuilder
+    private var filterControls: some View {
+        Toggle(l.t("duplicates.skipDev"), isOn: optionBinding(\.skipDeveloperFolders))
+        Toggle(l.t("duplicates.skipLibrary"), isOn: optionBinding(\.skipLibraryAndSystem))
+        Picker(l.t("duplicates.minSize"), selection: optionBinding(\.minimumSize)) {
+            ForEach(Self.sizeOptions, id: \.self) { size in
+                Text(size == 0 ? l.t("duplicates.anySize") : l.bytes(size)).tag(size)
+            }
+        }
+        .fixedSize()
+    }
+
+    /// Parent folder of a copy, with the home folder shortened to "~".
+    static func displayFolder(of path: String) -> String {
+        let folder = (path as NSString).deletingLastPathComponent
+        let home = NSHomeDirectory()
+        return folder.hasPrefix(home) ? "~" + folder.dropFirst(home.count) : folder
     }
 
     private var subtitle: String {
@@ -76,6 +90,7 @@ struct DuplicatesView: View {
                     Text(l.bytes(group.reclaimableSize)).font(.body.weight(.semibold).monospacedDigit())
                         .frame(width: 78, alignment: .trailing)
                 }
+                .help(group.displayName)
                 .tag(group.id)
             }
         }
@@ -111,15 +126,21 @@ struct DuplicatesView: View {
                             .labelsHidden()
                             VStack(alignment: .leading, spacing: 2) {
                                 HStack(spacing: 6) {
-                                    Text(file.path).lineLimit(1).truncationMode(.middle)
+                                    // All copies share the name, so show where each one lives.
+                                    Text(Self.displayFolder(of: file.path))
+                                        .lineLimit(1).truncationMode(.middle)
+                                        .help(file.path)
                                     if file == group.newest {
-                                        SeverityBadge(severity: .ok, text: l.t("duplicates.newest"))
+                                        SeverityBadge(severity: .ok, text: l.t("duplicates.newest")).fixedSize()
                                     }
                                 }
-                                Text("\(file.volumeName) · \(l.date(file.modificationDate))").font(.caption).foregroundStyle(.secondary)
+                                Text("\(file.volumeName) · \(l.date(file.modificationDate))")
+                                    .font(.caption).foregroundStyle(.secondary)
+                                    .lineLimit(1).truncationMode(.tail)
                             }
-                            Spacer()
-                            Text(l.bytes(file.allocatedSize)).monospacedDigit()
+                            .layoutPriority(1)
+                            Spacer(minLength: 4)
+                            Text(l.bytes(file.allocatedSize)).monospacedDigit().fixedSize()
                             Button { previewURL = URL(fileURLWithPath: file.path) } label: { Image(systemName: "eye") }
                                 .buttonStyle(.borderless).help(l.t("action.quickLook"))
                             Button { state.reveal(file.path) } label: { Image(systemName: "magnifyingglass") }
@@ -130,10 +151,7 @@ struct DuplicatesView: View {
                 }
                 .listStyle(.inset)
                 let chosen = group.files.filter { ticked.contains($0.path) }
-                HStack {
-                    Text(l.t("selection.summary", "\(chosen.count)", l.bytes(chosen.reduce(0) { $0 + $1.allocatedSize })))
-                        .font(.callout).foregroundStyle(.secondary)
-                    Spacer()
+                AdaptiveActionBar(summary: l.t("selection.summary", "\(chosen.count)", l.bytes(chosen.reduce(0) { $0 + $1.allocatedSize }))) {
                     Button(l.t("duplicates.keepNewest")) { marked[group.id] = Set(group.files.dropFirst().map(\.path)) }
                     Button(role: .destructive) {
                         state.requestTrash(chosen.map { TrashItem(path: $0.path, bytes: $0.allocatedSize, isDirectory: false) })

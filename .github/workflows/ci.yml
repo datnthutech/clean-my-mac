@@ -55,10 +55,15 @@ jobs:
           screencapture -x screenshots/2-scanning.png || true
           for i in $(seq 1 24); do sleep 10; pgrep -x CleanMyMac >/dev/null || { echo "App crashed while scanning"; exit 1; }; done
           screencapture -x screenshots/3-summary.png || true
+          pkill -x CleanMyMac || true; sleep 2
+          # 3) Duplicate Names page at the default (smallest) window size — layout must not overflow.
+          "$BIN" -AppleLanguages "(vi)" -scanOnLaunch YES -openPage duplicates &
+          for i in $(seq 1 15); do sleep 10; pgrep -x CleanMyMac >/dev/null || { echo "App crashed on duplicates page"; exit 1; }; done
+          screencapture -x screenshots/4-duplicates.png || true
           pkill -x CleanMyMac || true
           # Small JPEG preview in the log, for environments that cannot download artifacts.
-          if [ -f screenshots/3-summary.png ]; then
-            sips -s format jpeg -s formatOptions 45 -Z 1100 screenshots/3-summary.png --out /tmp/preview.jpg >/dev/null
+          if [ -f screenshots/4-duplicates.png ]; then
+            sips -s format jpeg -s formatOptions 45 -Z 1100 screenshots/4-duplicates.png --out /tmp/preview.jpg >/dev/null
             echo "PREVIEW-BEGIN"; base64 -i /tmp/preview.jpg | fold -w 8000; echo "PREVIEW-END"
           fi
       - name: Upload screenshots

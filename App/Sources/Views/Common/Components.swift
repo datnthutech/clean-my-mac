@@ -160,9 +160,7 @@ struct SelectionActionBar: View {
     var onTrash: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: 8) {
-            Text(summary).font(.callout).foregroundStyle(.secondary)
-            Spacer()
+        AdaptiveActionBar(summary: summary) {
             if let onReveal { Button(l.t("action.revealInFinder"), action: onReveal) }
             if let onPreview { Button(l.t("action.quickLook"), action: onPreview) }
             if let onTrash {
@@ -173,5 +171,53 @@ struct SelectionActionBar: View {
         }
         .padding(10)
         .background(Color.primary.opacity(0.04))
+    }
+}
+
+/// Summary text + buttons that never get clipped: one row if it fits, otherwise the summary
+/// moves above the buttons, and on very narrow panes the buttons stack vertically.
+struct AdaptiveActionBar<Buttons: View>: View {
+    let summary: String
+    @ViewBuilder var buttons: Buttons
+
+    var body: some View {
+        let label = Text(summary).font(.callout).foregroundStyle(.secondary).lineLimit(1)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) { label; Spacer(minLength: 8); HStack(spacing: 8) { buttons }.fixedSize() }
+            VStack(alignment: .leading, spacing: 6) {
+                label
+                HStack(spacing: 8) { Spacer(minLength: 0); HStack(spacing: 8) { buttons }.fixedSize() }
+            }
+            VStack(alignment: .trailing, spacing: 6) {
+                label.frame(maxWidth: .infinity, alignment: .leading)
+                buttons
+            }
+        }
+    }
+}
+
+/// The app's equivalent of CSS `overflow: auto` for a whole page.
+///
+/// The page is laid out at the window's size, but never smaller than `minWidth` × `minHeight`.
+/// When the window is smaller than that, scroll bars appear instead of content spilling
+/// past the window edge; anything still wider than the page is clipped, never drawn outside.
+struct PageContainer<Content: View>: View {
+    var minWidth: CGFloat
+    var minHeight: CGFloat
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        GeometryReader { geo in
+            let width = max(geo.size.width, minWidth)
+            let height = max(geo.size.height, minHeight)
+            let page = content
+                .frame(width: width, height: height, alignment: .topLeading)
+                .clipped()
+            if width > geo.size.width || height > geo.size.height {
+                ScrollView([.horizontal, .vertical]) { page }
+            } else {
+                page
+            }
+        }
     }
 }
