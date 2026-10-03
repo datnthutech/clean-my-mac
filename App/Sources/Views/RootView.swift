@@ -17,7 +17,6 @@ struct RootView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color(nsColor: .windowBackgroundColor))
         }
-        .navigationSplitViewStyle(.balanced)
         // macOS collapses the sidebar on its own when a page is too wide or the window shrinks;
         // always bring it back.
         .onChange(of: columnVisibility) { newValue in
