@@ -4,7 +4,7 @@
 
 Clean My Mac giúp bạn biết **dung lượng ổ đĩa đang được dùng vào việc gì**, chỉ ra những thứ chiếm chỗ không cần thiết và dọn dẹp **an toàn** — mọi thứ xoá đều vào Thùng rác trước.
 
-Yêu cầu: macOS 13 Ventura trở lên, máy Apple silicon (M1/M2/M3/M4…) hoặc Intel.
+Có 2 bản: **macOS** (13 Ventura trở lên, Apple silicon và Intel) và **Windows** (10 phiên bản 1809 trở lên và Windows 11, x64 và ARM64). Giao diện và tính năng giống nhau; phần khác biệt của Windows nằm ở [mục 13](#13-bản-windows).
 
 ---
 
@@ -213,3 +213,30 @@ Không. Ổ mạng bị bỏ qua vì quét qua mạng rất chậm.
 
 **App có gửi dữ liệu đi đâu không?**
 Không. App không kết nối mạng.
+
+---
+
+## 13. Bản Windows
+
+Cùng 6 màn hình, cùng cách đọc mức độ cảnh báo, cùng song ngữ Việt/Anh. Yêu cầu: **Windows 10 phiên bản 1809 (build 17763) trở lên hoặc Windows 11**, máy x64 hoặc ARM64. Không cần cài thêm .NET hay runtime nào.
+
+### Cài đặt
+1. Vào GitHub › **Actions** › lần chạy **CI** mới nhất › **Artifacts** › tải `CleanMyMac-windows-x64` (máy Intel/AMD) hoặc `CleanMyMac-windows-ARM64` (Surface Pro X, Copilot+ PC…). Hoặc vào **Releases** nếu đã có bản phát hành.
+2. Giải nén file `.zip` vào một thư mục (ví dụ `C:\Tools\CleanMyMac`), chạy `CleanMyMac.exe`.
+3. Lần đầu mở, **Windows SmartScreen** có thể cảnh báo vì app chưa ký bằng chứng chỉ thương mại: bấm **Thông tin thêm** › **Vẫn chạy**.
+
+Tự build: cài .NET SDK 8, rồi chạy `dotnet publish windows/src/CleanMyMac.App -c Release -r win-x64 -p:Platform=x64`.
+
+### Khác biệt so với bản macOS
+| Nội dung | macOS | Windows |
+|---|---|---|
+| Quyền đọc thư mục được bảo vệ | Full Disk Access | Nút **Khởi động lại với quyền Admin** (không bắt buộc; không có thì một số thư mục hệ thống bị bỏ qua) |
+| Ổ khởi động | Macintosh HD | Ổ cài Windows (thường là C:) |
+| Xoá file | Vào Thùng rác | Vào Thùng rác; **USB và thẻ nhớ không có Thùng rác** nên app cảnh báo rõ và hỏi trước khi xoá vĩnh viễn |
+| Mở file | Mở trong Finder / Xem nhanh | Mở trong Explorer / Mở |
+| Thư mục đáng chú ý | DerivedData, Simulator… | File tạm Windows, cache Windows Update, `Windows.old`, Thùng rác, cache trình duyệt, `node_modules`, cache NuGet/npm… |
+| Dung lượng | Dung lượng thực chiếm | "Size on disk"; hard link (WinSxS) chỉ tính một lần; junction/symlink không bị đi theo |
+| Docker | Docker Desktop, OrbStack… | Docker Desktop (WSL 2); file ổ ảo `.vhdx` không tự nhỏ lại sau khi dọn |
+| Ngưỡng cảnh báo GB | Chỉ áp dụng cho ổ khởi động | Chỉ áp dụng cho ổ cài Windows |
+
+Ổ USB, SSD gắn ngoài và thẻ nhớ hiện trong danh sách ổ đĩa khi cắm, và vẫn được hỏi xác nhận trước khi quét.

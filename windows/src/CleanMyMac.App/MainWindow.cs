@@ -36,7 +36,9 @@ public sealed class MainWindow : Window
         _dialogs = new DialogService(this, _state, _l);
 
         Title = _l.T("app.name");
-        AppWindow.Resize(new Windows.Graphics.SizeInt32(1240, 800));
+        // Never open larger than the screen's work area (small laptops, remote sessions, CI machines).
+        var area = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(AppWindow.Id, Microsoft.UI.Windowing.DisplayAreaFallback.Primary).WorkArea;
+        AppWindow.Resize(new Windows.Graphics.SizeInt32(Math.Min(1240, Math.Max(640, area.Width - 40)), Math.Min(800, Math.Max(480, area.Height - 60))));
         try { AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "AppIcon.ico")); } catch { }
         if (MicaController.IsSupported()) SystemBackdrop = new MicaBackdrop();
 
