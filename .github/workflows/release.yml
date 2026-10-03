@@ -1,6 +1,10 @@
 name: Release
 
-# Push a tag like v1.0.0 to build the DMG and attach it to a GitHub Release.
+# Push a tag like v1.0.0 (or v1.0.0-beta.1 for a pre-release) to build every installer and attach it to a GitHub Release:
+#   CleanMyMac-<version>-macOS.dmg          universal (Apple silicon + Intel), macOS 13+
+#   CleanMyMac-<version>-windows-x64.zip    Windows 10 1809+ / Windows 11, Intel/AMD
+#   CleanMyMac-<version>-windows-ARM64.zip  Windows 10 1809+ / Windows 11, ARM64
+# plus a .sha256 file next to each. Tags containing "-" are published as pre-releases.
 on:
   push:
     tags: ["v*"]
@@ -8,8 +12,60 @@ on:
 permissions:
   contents: write
 
+env:
+  # Full tag name without the leading "v": 1.0.0-beta.1. NUMERIC is the part macOS accepts as a bundle version: 1.0.0.
+  TAG_VERSION: ${{ github.ref_name }}
+
 jobs:
+  macos:
+    name: macOS DMG
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Set version from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          NUMERIC="${VERSION%%-*}"
+          sed -i '' "s/MARKETING_VERSION: \".*\"/MARKETING_VERSION: \"$NUMERIC\"/" project.yml
+          sed -i '' "s/CURRENT_PROJECT_VERSION: \".*\"/CURRENT_PROJECT_VERSION: \"$GITHUB_RUN_NUMBER\"/" project.yml
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Build (tests + universal app + DMG)
+        run: scripts/build.sh
+      - name: Name and checksum the DMG
+        run: |
+          mkdir -p dist
+          cp build/CleanMyMac-*.dmg "dist/CleanMyMac-${VERSION}-macOS.dmg"
+          (cd dist && shasum -a 256 "CleanMyMac-${VERSION}-macOS.dmg" > "CleanMyMac-${VERSION}-macOS.dmg.sha256")
+          lipo -archs "build/Clean My Mac.app/Contents/MacOS/CleanMyMac"
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          body: |
+            ## Cài đặt / Install
+
+            **macOS 13+** (Apple silicon & Intel): mở `CleanMyMac-*-macOS.dmg`, kéo **Clean My Mac** vào Applications. Lần đầu mở: Cài đặt hệ thống › Quyền riêng tư & Bảo mật › **Vẫn mở** (app được ký ad-hoc), rồi cấp **Full Disk Access** để quét đầy đủ.
+
+            **Windows 10 1809+ / Windows 11**: tải `CleanMyMac-*-windows-x64.zip` (Intel/AMD) hoặc `…-ARM64.zip`, giải nén, chạy `CleanMyMac.exe`. Nếu SmartScreen cảnh báo: **Thông tin thêm › Vẫn chạy**. Quyền Admin là tuỳ chọn (có thì quét đầy đủ hơn).
+
+            Kiểm tra toàn vẹn: so khớp SHA-256 với file `.sha256` đi kèm. Hướng dẫn sử dụng: [tiếng Việt](docs/USER_GUIDE.md) · [English](docs/USER_GUIDE.en.md).
+
+            ## Lưu ý / Notes
+
+            - Bản build chưa ký bằng Developer ID (macOS) hoặc chứng chỉ ký code (Windows), nên hệ điều hành sẽ cảnh báo lần đầu mở.
+            - Đã kiểm thử tự động trên macOS 15 và Windows Server 2025; chưa kiểm thử trên máy thật với USB/SSD rời, Windows 10 1809, ARM64, macOS 13/14/26.
+            - Moves to Trash / Recycle Bin only; USB sticks and memory cards on Windows have no Recycle Bin (the app warns before deleting permanently).
+
   windows:
+    name: Windows ${{ matrix.arch }}
+    needs: macos # the macOS job creates the release first, so the uploads below never race to create it
     runs-on: windows-latest
     strategy:
       matrix:
@@ -21,33 +77,23 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - name: Publish
+      - name: Test core logic
+        if: matrix.arch == 'x64'
+        run: dotnet test windows/tests/DiskKit.Core.Tests -c Release
+      - name: Publish and zip
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}".TrimStart("v")
           dotnet publish windows/src/CleanMyMac.App/CleanMyMac.App.csproj -c Release -r ${{ matrix.rid }} -p:Platform=${{ matrix.arch }} -p:Version=$version -o windows/artifacts/${{ matrix.rid }}
-          Compress-Archive -Path "windows/artifacts/${{ matrix.rid }}/*" -DestinationPath "CleanMyMac-$version-windows-${{ matrix.arch }}.zip"
-      - uses: softprops/action-gh-release@v2
-        with:
-          files: CleanMyMac-*-windows-*.zip
-
-  release:
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-      - name: Select Xcode
-        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
-      - name: Install XcodeGen
-        run: brew install xcodegen
-      - name: Set version from tag
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          sed -i '' "s/MARKETING_VERSION: \".*\"/MARKETING_VERSION: \"$VERSION\"/" project.yml
-          sed -i '' "s/CURRENT_PROJECT_VERSION: \".*\"/CURRENT_PROJECT_VERSION: \"$GITHUB_RUN_NUMBER\"/" project.yml
-      - name: Build
-        run: scripts/build.sh
-      - name: Publish release
+          if ($LASTEXITCODE -ne 0) { throw "publish failed" }
+          New-Item -ItemType Directory -Force dist | Out-Null
+          $zip = "dist/CleanMyMac-$version-windows-${{ matrix.arch }}.zip"
+          Compress-Archive -Path "windows/artifacts/${{ matrix.rid }}/*" -DestinationPath $zip
+          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+          "$hash  $(Split-Path $zip -Leaf)" | Out-File -Encoding ascii "$zip.sha256"
+      - name: Attach to release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/*.dmg
-          generate_release_notes: true
+          files: dist/*
+          fail_on_unmatched_files: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
