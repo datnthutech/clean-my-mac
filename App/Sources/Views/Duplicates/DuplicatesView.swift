@@ -57,6 +57,13 @@ struct DuplicatesView: View {
         .fixedSize()
     }
 
+    /// Parent folder of a copy, with the home folder shortened to "~".
+    static func displayFolder(of path: String) -> String {
+        let folder = (path as NSString).deletingLastPathComponent
+        let home = NSHomeDirectory()
+        return folder.hasPrefix(home) ? "~" + folder.dropFirst(home.count) : folder
+    }
+
     private var subtitle: String {
         l.t("duplicates.subtitle", "\(state.duplicates.count)", l.number(state.duplicates.reduce(0) { $0 + $1.files.count }),
             l.bytes(state.duplicateReclaimableBytes))
@@ -118,15 +125,21 @@ struct DuplicatesView: View {
                             .labelsHidden()
                             VStack(alignment: .leading, spacing: 2) {
                                 HStack(spacing: 6) {
-                                    Text(file.path).lineLimit(1).truncationMode(.middle)
+                                    // All copies share the name, so show where each one lives.
+                                    Text(Self.displayFolder(of: file.path))
+                                        .lineLimit(1).truncationMode(.middle)
+                                        .help(file.path)
                                     if file == group.newest {
-                                        SeverityBadge(severity: .ok, text: l.t("duplicates.newest"))
+                                        SeverityBadge(severity: .ok, text: l.t("duplicates.newest")).fixedSize()
                                     }
                                 }
-                                Text("\(file.volumeName) · \(l.date(file.modificationDate))").font(.caption).foregroundStyle(.secondary)
+                                Text("\(file.volumeName) · \(l.date(file.modificationDate))")
+                                    .font(.caption).foregroundStyle(.secondary)
+                                    .lineLimit(1).truncationMode(.tail)
                             }
-                            Spacer()
-                            Text(l.bytes(file.allocatedSize)).monospacedDigit()
+                            .layoutPriority(1)
+                            Spacer(minLength: 4)
+                            Text(l.bytes(file.allocatedSize)).monospacedDigit().fixedSize()
                             Button { previewURL = URL(fileURLWithPath: file.path) } label: { Image(systemName: "eye") }
                                 .buttonStyle(.borderless).help(l.t("action.quickLook"))
                             Button { state.reveal(file.path) } label: { Image(systemName: "magnifyingglass") }
@@ -137,10 +150,9 @@ struct DuplicatesView: View {
                 }
                 .listStyle(.inset)
                 let chosen = group.files.filter { ticked.contains($0.path) }
-                HStack {
-                    Text(l.t("selection.summary", "\(chosen.count)", l.bytes(chosen.reduce(0) { $0 + $1.allocatedSize })))
-                        .font(.callout).foregroundStyle(.secondary)
-                    Spacer()
+                let summary = Text(l.t("selection.summary", "\(chosen.count)", l.bytes(chosen.reduce(0) { $0 + $1.allocatedSize })))
+                    .font(.callout).foregroundStyle(.secondary).lineLimit(1)
+                let actions = HStack(spacing: 8) {
                     Button(l.t("duplicates.keepNewest")) { marked[group.id] = Set(group.files.dropFirst().map(\.path)) }
                     Button(role: .destructive) {
                         state.requestTrash(chosen.map { TrashItem(path: $0.path, bytes: $0.allocatedSize, isDirectory: false) })
@@ -149,6 +161,12 @@ struct DuplicatesView: View {
                     }
                     .disabled(chosen.isEmpty || chosen.count == group.files.count)
                     .help(chosen.count == group.files.count ? l.t("duplicates.keepOne") : "")
+                }
+                .fixedSize()
+                // One row when there is room, otherwise the summary goes above the buttons.
+                ViewThatFits(in: .horizontal) {
+                    HStack { summary; Spacer(minLength: 8); actions }
+                    VStack(alignment: .leading, spacing: 6) { summary; HStack { Spacer(minLength: 0); actions } }
                 }
                 .padding(10)
                 .background(Color.primary.opacity(0.04))

@@ -160,9 +160,8 @@ struct SelectionActionBar: View {
     var onTrash: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: 8) {
-            Text(summary).font(.callout).foregroundStyle(.secondary)
-            Spacer()
+        let label = Text(summary).font(.callout).foregroundStyle(.secondary).lineLimit(1)
+        let buttons = HStack(spacing: 8) {
             if let onReveal { Button(l.t("action.revealInFinder"), action: onReveal) }
             if let onPreview { Button(l.t("action.quickLook"), action: onPreview) }
             if let onTrash {
@@ -170,6 +169,12 @@ struct SelectionActionBar: View {
                     Label(trashTitle ?? l.t("action.moveToTrash"), systemImage: "trash")
                 }
             }
+        }
+        .fixedSize()
+        // Buttons never get squeezed: on narrow panes the summary moves above them.
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) { label; Spacer(minLength: 8); buttons }
+            VStack(alignment: .leading, spacing: 6) { label; HStack { Spacer(minLength: 0); buttons } }
         }
         .padding(10)
         .background(Color.primary.opacity(0.04))
