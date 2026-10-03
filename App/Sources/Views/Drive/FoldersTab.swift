@@ -73,7 +73,7 @@ struct FoldersTab: View {
                     SelectionActionBar(
                         summary: selectionSummary(items),
                         onReveal: selection.isEmpty ? nil : { selection.forEach(state.reveal) },
-                        onPreview: selection.count == 1 ? { previewURL = URL(fileURLWithPath: selection.first!) } : nil,
+                        onPreview: selection.count == 1 ? { if let id = selection.first { previewURL = URL(fileURLWithPath: id) } } : nil,
                         onTrash: selection.isEmpty ? nil : { trash(items) }
                     )
                 }

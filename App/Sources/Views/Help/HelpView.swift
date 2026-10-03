@@ -45,7 +45,8 @@ struct HelpView: View {
                     }
                 }
             }
-            .listStyle(.sidebar)
+            // Not `.sidebar`: only the app menu may act as the window's sidebar.
+            .listStyle(.inset)
             .frame(width: 240)
 
             Divider()

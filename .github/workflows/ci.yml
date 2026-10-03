@@ -61,9 +61,28 @@ jobs:
           for i in $(seq 1 15); do sleep 10; pgrep -x CleanMyMac >/dev/null || { echo "App crashed on duplicates page"; exit 1; }; done
           screencapture -x screenshots/4-duplicates.png || true
           pkill -x CleanMyMac || true
-          # Small JPEG preview in the log, for environments that cannot download artifacts.
-          if [ -f screenshots/4-duplicates.png ]; then
-            sips -s format jpeg -s formatOptions 45 -Z 1100 screenshots/4-duplicates.png --out /tmp/preview.jpg >/dev/null
+          # 4) Every page before any scan (empty / not-ready states): the menu must always be visible.
+          for page in summary drive duplicates docker log help settings; do
+            "$BIN" -AppleLanguages "(vi)" -openPage "$page" &
+            sleep 6
+            pgrep -x CleanMyMac >/dev/null || { echo "App crashed on page $page"; exit 1; }
+            screencapture -x "screenshots/page-$page.png" || true
+            pkill -x CleanMyMac || true; sleep 2
+          done
+          # Contact sheet of all pages, printed as a small JPEG for environments that cannot download artifacts.
+          python3 -m pip install --quiet --user --break-system-packages pillow >/dev/null 2>&1 || true
+          python3 - <<'PY' || true
+          import glob
+          from PIL import Image
+          files = ["screenshots/4-duplicates.png"] + sorted(glob.glob("screenshots/page-*.png"))
+          tiles = [Image.open(f).convert("RGB") for f in files]
+          w = 520; h = int(tiles[0].height * w / tiles[0].width)
+          sheet = Image.new("RGB", (w * 3, h * ((len(tiles) + 2) // 3)), "white")
+          for i, t in enumerate(tiles):
+              sheet.paste(t.resize((w, h)), ((i % 3) * w, (i // 3) * h))
+          sheet.save("/tmp/preview.jpg", quality=45)
+          PY
+          if [ -f /tmp/preview.jpg ]; then
             echo "PREVIEW-BEGIN"; base64 -i /tmp/preview.jpg | fold -w 8000; echo "PREVIEW-END"
           fi
       - name: Upload screenshots

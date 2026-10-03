@@ -60,7 +60,7 @@ struct LargeFilesTab: View {
                             ? l.t("largeFiles.total", l.bytes(files.reduce(0) { $0 + $1.allocatedSize }))
                             : l.t("selection.summary", l.number(chosen.count), l.bytes(chosen.reduce(0) { $0 + $1.allocatedSize })),
                         onReveal: selection.isEmpty ? nil : { selection.forEach(state.reveal) },
-                        onPreview: selection.count == 1 ? { previewURL = URL(fileURLWithPath: selection.first!) } : nil,
+                        onPreview: selection.count == 1 ? { if let id = selection.first { previewURL = URL(fileURLWithPath: id) } } : nil,
                         onTrash: selection.isEmpty ? nil : { trash(selection, files: files) }
                     )
                 }
