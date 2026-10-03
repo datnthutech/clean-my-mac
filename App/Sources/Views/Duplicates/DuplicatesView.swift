@@ -36,8 +36,8 @@ struct DuplicatesView: View {
                 EmptyStateView(symbol: "checkmark.circle", title: l.t("duplicates.none.title"), message: l.t("duplicates.none.message"))
             } else {
                 HStack(alignment: .top, spacing: 16) {
-                    groupList.frame(minWidth: 240, idealWidth: 320, maxWidth: 360)
-                    groupDetail.frame(minWidth: 380, maxWidth: .infinity)
+                    groupList.frame(minWidth: 220, idealWidth: 280, maxWidth: 320)
+                    groupDetail.frame(minWidth: 380, maxWidth: .infinity).layoutPriority(1)
                 }
             }
         }
@@ -150,9 +150,7 @@ struct DuplicatesView: View {
                 }
                 .listStyle(.inset)
                 let chosen = group.files.filter { ticked.contains($0.path) }
-                let summary = Text(l.t("selection.summary", "\(chosen.count)", l.bytes(chosen.reduce(0) { $0 + $1.allocatedSize })))
-                    .font(.callout).foregroundStyle(.secondary).lineLimit(1)
-                let actions = HStack(spacing: 8) {
+                AdaptiveActionBar(summary: l.t("selection.summary", "\(chosen.count)", l.bytes(chosen.reduce(0) { $0 + $1.allocatedSize }))) {
                     Button(l.t("duplicates.keepNewest")) { marked[group.id] = Set(group.files.dropFirst().map(\.path)) }
                     Button(role: .destructive) {
                         state.requestTrash(chosen.map { TrashItem(path: $0.path, bytes: $0.allocatedSize, isDirectory: false) })
@@ -161,12 +159,6 @@ struct DuplicatesView: View {
                     }
                     .disabled(chosen.isEmpty || chosen.count == group.files.count)
                     .help(chosen.count == group.files.count ? l.t("duplicates.keepOne") : "")
-                }
-                .fixedSize()
-                // One row when there is room, otherwise the summary goes above the buttons.
-                ViewThatFits(in: .horizontal) {
-                    HStack { summary; Spacer(minLength: 8); actions }
-                    VStack(alignment: .leading, spacing: 6) { summary; HStack { Spacer(minLength: 0); actions } }
                 }
                 .padding(10)
                 .background(Color.primary.opacity(0.04))

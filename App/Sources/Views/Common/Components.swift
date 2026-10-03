@@ -160,8 +160,7 @@ struct SelectionActionBar: View {
     var onTrash: (() -> Void)?
 
     var body: some View {
-        let label = Text(summary).font(.callout).foregroundStyle(.secondary).lineLimit(1)
-        let buttons = HStack(spacing: 8) {
+        AdaptiveActionBar(summary: summary) {
             if let onReveal { Button(l.t("action.revealInFinder"), action: onReveal) }
             if let onPreview { Button(l.t("action.quickLook"), action: onPreview) }
             if let onTrash {
@@ -170,14 +169,30 @@ struct SelectionActionBar: View {
                 }
             }
         }
-        .fixedSize()
-        // Buttons never get squeezed: on narrow panes the summary moves above them.
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) { label; Spacer(minLength: 8); buttons }
-            VStack(alignment: .leading, spacing: 6) { label; HStack { Spacer(minLength: 0); buttons } }
-        }
         .padding(10)
         .background(Color.primary.opacity(0.04))
+    }
+}
+
+/// Summary text + buttons that never get clipped: one row if it fits, otherwise the summary
+/// moves above the buttons, and on very narrow panes the buttons stack vertically.
+struct AdaptiveActionBar<Buttons: View>: View {
+    let summary: String
+    @ViewBuilder var buttons: Buttons
+
+    var body: some View {
+        let label = Text(summary).font(.callout).foregroundStyle(.secondary).lineLimit(1)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) { label; Spacer(minLength: 8); HStack(spacing: 8) { buttons }.fixedSize() }
+            VStack(alignment: .leading, spacing: 6) {
+                label
+                HStack(spacing: 8) { Spacer(minLength: 0); HStack(spacing: 8) { buttons }.fixedSize() }
+            }
+            VStack(alignment: .trailing, spacing: 6) {
+                label.frame(maxWidth: .infinity, alignment: .leading)
+                buttons
+            }
+        }
     }
 }
 
