@@ -23,6 +23,8 @@ jobs:
         run: |
           apt-get update -qq && apt-get install -y -qq python3 >/dev/null
           python3 scripts/check_localization.py
+      - name: Check documentation links
+        run: python3 scripts/check_docs.py
 
   macos:
     name: Build macOS app + DMG

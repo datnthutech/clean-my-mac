@@ -1,6 +1,18 @@
-# Kiến trúc ứng dụng
+# Kiến trúc ứng dụng (macOS và Windows)
 
 Tài liệu cho người phát triển: dự án được tổ chức thế nào, dữ liệu đi qua những đâu, và nên sửa ở chỗ nào.
+
+Một repo, **hai ứng dụng gốc** (không dùng chung mã giữa hai bản, vì khác ngôn ngữ và API hệ thống), tách thư mục theo hệ điều hành và dùng **cùng kiến trúc hai tầng, cùng tên mô-đun, cùng câu chữ**:
+
+| | 🍎 macOS | 🪟 Windows |
+|---|---|---|
+| Giao diện | `App/` (SwiftUI) | `windows/src/CleanMyMac.App` (WinUI 3) |
+| Logic (có test) | `Packages/DiskKit` (Swift) | `windows/src/DiskKit.Core` (C#) |
+| Test | `Packages/DiskKit/Tests` (35) | `windows/tests/DiskKit.Core.Tests` (29) |
+| Bản dịch | `App/Resources/{vi,en}.lproj` | nạp **chung** file trên + ghi đè trong `Strings/*.strings` |
+| Phần cuối tài liệu này | mục 1–7 | mục 8 |
+
+Muốn thêm hay sửa một tính năng thì thường phải sửa **cả hai** bản; bảng ở mục 7 chỉ rõ chỗ sửa.
 
 ## 1. Tổng quan hai tầng
 
@@ -60,9 +72,12 @@ clean-my-mac/
 │   │   ├── Layout/      TreemapLayout (squarified)
 │   │   └── System/      FullDiskAccess
 │   └── Tests/DiskKitTests/
-├── scripts/            build.sh, make_dmg.sh, check_localization.py, generate_icon.py, test_linux.sh
-├── .github/workflows/  ci.yml (test + build DMG), release.yml (tag v* → GitHub Release)
-└── docs/               PLAN.md, ARCHITECTURE.md, USER_GUIDE.md, USER_GUIDE.en.md, DESIGN.md
+├── windows/            Bản Windows (xem mục 8): src/DiskKit.Core, src/CleanMyMac.App, tests/
+├── global.json         Ghim .NET SDK 8 cho bản Windows
+├── scripts/            build.sh, make_dmg.sh, check_localization.py, check_docs.py, generate_icon.py, test_linux.sh, windows-smoke.ps1
+├── .github/workflows/  ci.yml (test + build + chạy thử cả hai app), release.yml (tag v* → GitHub Release)
+├── CHANGELOG.md        Nhật ký thay đổi
+└── docs/               PLAN, ARCHITECTURE, DESIGN, RELEASING, USER_GUIDE (vi), USER_GUIDE.en, ảnh chụp màn hình
 ```
 
 ## 3. Luồng chính
@@ -117,7 +132,7 @@ View → state.requestTrash(items)
         ghi DeletionLog (~/Library/Application Support/CleanMyMac/deletion-log.json)
 ```
 
-## 4. Mức độ nghiêm trọng (`Health.swift`)
+## 4. Mức độ nghiêm trọng (🍎 `Health.swift` · 🪟 `Health/Health.cs`)
 
 | Mức | Điều kiện mặc định |
 |---|---|
@@ -135,15 +150,36 @@ Hotspot ≥ 10 GB và Docker `<none>` ≥ 5 GB được nâng lên Cảnh báo. 
 
 ## 6. Build & phát hành
 
+### Lệnh thường dùng
+
 | Lệnh | Việc làm |
 |---|---|
-| `make build` | Cài XcodeGen nếu thiếu → kiểm tra bản dịch → `swift test` → sinh project → build Release universal (arm64 + x86_64) → ký ad-hoc → DMG trong `build/` |
-| `make open` | Sinh project và mở trong Xcode |
-| `make test-linux` | Chạy test DiskKit trong Docker (không cần Mac) |
-| CI (`ci.yml`) | Mỗi lần push: test trên Linux + build DMG trên máy ảo macOS, DMG tải về ở mục Artifacts |
-| Release (`release.yml`) | Push tag `v1.2.3` → build DMG và đính vào GitHub Release |
+| 🍎 `make build` | Cài XcodeGen nếu thiếu → kiểm tra bản dịch → `swift test` → sinh project → build Release universal (arm64 + x86_64) → ký ad-hoc → DMG trong `build/` |
+| 🍎 `make open` / `make run` | Sinh project và mở trong Xcode / build rồi mở app |
+| 🍎 `make test` / `make test-linux` | Test DiskKit trên Mac / trong Docker (không cần Mac) |
+| 🪟 `dotnet publish windows/src/CleanMyMac.App -c Release -r win-x64 -p:Platform=x64 -o windows/artifacts/win-x64` | Build Windows self-contained (`win-arm64` + `-p:Platform=ARM64` cho ARM64); cần .NET SDK 8 trên Windows |
+| 🪟 `dotnet test windows/tests/DiskKit.Core.Tests` | Test logic Windows; chạy được trên mọi hệ điều hành (test chỉ dành cho Windows tự bỏ qua ở nơi khác) |
+| `python3 scripts/check_localization.py` | Kiểm tra bản dịch của cả hai app |
+| `python3 scripts/check_docs.py` | Kiểm tra mọi liên kết, ảnh và neo (anchor) trong README, CHANGELOG, `docs/*.md` (chạy cả trong CI) |
 
-Ký & notarize bằng tài khoản Apple Developer: đặt `SIGN_IDENTITY` và `NOTARY_PROFILE` khi chạy `scripts/build.sh`.
+### Lưu ý khi build Windows
+- **`global.json` ở gốc repo ghim .NET SDK 8** để build giống hệt CI. Lần build Windows đầu tiên trên CI dùng SDK 10 cài sẵn trên runner và lỗi ở bước đóng gói; sau khi ghim SDK 8 và bật `EnableMsixTooling` (bên dưới) thì build thành công. Chưa thử SDK 10 cùng `EnableMsixTooling`. `global.json` chỉ có hiệu lực khi nằm ở thư mục chạy lệnh hoặc cao hơn, nên đặt ở gốc repo (đặt trong `windows/` thì không đủ khi chạy lệnh từ gốc).
+- `CleanMyMac.App.csproj` bật `EnableMsixTooling` để `dotnet publish` chạy được mà không cần Visual Studio.
+- Ứng dụng không đóng gói MSIX (`WindowsPackageType=None`) và self-contained (`WindowsAppSDKSelfContained`), nên thư mục publish chạy được ngay, không cần cài runtime. Nhắm `net8.0-windows10.0.19041.0`, tối thiểu Windows 10 1809 (`TargetPlatformMinVersion` 10.0.17763.0).
+- Phần giao diện (XAML/WinUI) chỉ build được trên Windows; phần logic và test build được ở mọi nơi.
+
+### CI (`ci.yml`, mỗi lần push)
+
+| Job | Việc làm |
+|---|---|
+| `core-linux` | `swift test` (Linux) + kiểm tra bản dịch |
+| `macos` | `scripts/build.sh` (test + build universal + DMG), chạy thử app: mở từng trang, quét thật, chụp màn hình; đăng `CleanMyMac-dmg` và ảnh |
+| `windows` (x64, ARM64) | kiểm tra bản dịch, `dotnet test` (x64), `dotnet publish`, zip; x64 chạy thử bằng `scripts/windows-smoke.ps1` (mở 8 trang, quét thật, chụp màn hình); đăng `CleanMyMac-windows-*` và ảnh |
+
+### Release (`release.yml`, khi đẩy tag `v*`)
+Job macOS tạo GitHub Release (DMG + `.sha256` + ghi chú) rồi hai job Windows đính zip + `.sha256` vào cùng Release; tag có dấu `-` là Pre-release. Cách thực hiện, kiểm tra, xử lý sự cố, ký số: [RELEASING.md](RELEASING.md).
+
+Ký & notarize macOS bằng tài khoản Apple Developer: đặt `SIGN_IDENTITY` và `NOTARY_PROFILE` khi chạy `scripts/build.sh` (chưa nối vào workflow).
 
 ## 7. Thêm tính năng mới — nên sửa ở đâu
 
@@ -153,7 +189,9 @@ Ký & notarize bằng tài khoản Apple Developer: đặt `SIGN_IDENTITY` và `
 | Thêm thư mục "đáng chú ý" | `HotspotKind` + `hotspotPaths` trong `Categorizer`, chuỗi `hotspot.*` |
 | Thêm loại cảnh báo trên Tóm tắt | `FindingKind` + `SummaryBuilder`, câu chữ trong `FindingPresenter` |
 | Chặn thêm đường dẫn khỏi bị xoá | `TrashGuard` |
-| Thêm màn hình | `SidebarItem` + `DetailRouter` + view mới trong `Views/` |
+| Thêm màn hình | 🍎 `SidebarItem` + `DetailRouter` + view mới trong `Views/` · 🪟 `NavItem` + `MainWindow.Render` + `IPage` mới trong `Pages/` |
+| Thêm chuỗi giao diện | 🍎 `App/Resources/{vi,en}.lproj/Localizable.strings` (🪟 dùng lại tự động) · chuỗi riêng Windows: `windows/src/CleanMyMac.App/Strings/{en,vi}.strings` · rồi chạy `scripts/check_localization.py` |
+| Phần việc tương ứng ở bản Windows | `windows/src/DiskKit.Core/` (cùng tên mô-đun: Analysis, Docker, Health, Trash, Scanner, Volumes, Layout) |
 
 ## 8. Bản Windows (`windows/`)
 
@@ -178,7 +216,7 @@ windows/
 │   ├── UI/                      # Theme, Ui (helper dựng giao diện), DialogService, TreemapControl
 │   ├── Localization/            # Localizer: đọc chung file .strings của macOS + ghi đè riêng Windows
 │   └── Strings/{en,vi}.strings  # chuỗi riêng Windows
-└── tests/DiskKit.Core.Tests/    # 29 test (xUnit)
+└── tests/DiskKit.Core.Tests/    # 29 test case (xUnit)
 ```
 
 - **Bản dịch dùng chung**: `Localizer` nạp `App/Resources/{vi,en}.lproj/Localizable.strings` của bản macOS, rồi ghi đè bằng `Strings/*.strings` của Windows. `scripts/check_localization.py` kiểm tra cả hai app.
@@ -187,3 +225,4 @@ windows/
 - **Menu luôn hiện**: `NavigationView.PaneClosing` bị huỷ, `IsPaneToggleButtonVisible=false`; lỗi khi dựng một trang chỉ hiện panel lỗi trong vùng nội dung; `App.UnhandledException` không để app thoát.
 - **CI** (`ci.yml`, job `windows`): kiểm tra bản dịch → `dotnet test` → `dotnet publish` (x64, ARM64) → zip → chạy thử app trên 8 trang + quét thật, chụp màn hình.
 - Chạy cục bộ trên Linux/macOS: `dotnet test windows/tests/DiskKit.Core.Tests` (phần logic). Giao diện chỉ build được trên Windows.
+- **Hạn chế hiện tại của bản Windows:** chưa có phím tắt và menu chuột phải; chưa có `Setup.exe` (zip portable); chưa ký số; chưa kiểm thử xoá trên USB/thẻ nhớ thật. Xem [PLAN.md](PLAN.md#8-hạn-chế-đã-biết-và-hướng-phát-triển-tiếp-theo).

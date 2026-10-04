@@ -1,8 +1,8 @@
-# Clean My Mac — Kế hoạch dự án (bản chốt)
+# Clean My Mac — Kế hoạch dự án (macOS và Windows)
 
 ## 1. Mục tiêu
 
-Giúp người dùng macOS **nắm rõ dung lượng đã dùng, dùng cho mục đích gì**, và dọn dẹp an toàn.
+Giúp người dùng **macOS và Windows** **nắm rõ dung lượng đã dùng, dùng cho mục đích gì**, và dọn dẹp an toàn.
 Giao diện chia theo **từng ổ đĩa** (ổ trong + ổ rời đang kết nối).
 
 ### Yêu cầu bắt buộc
@@ -17,17 +17,22 @@ Giao diện chia theo **từng ổ đĩa** (ổ trong + ổ rời đang kết n�
 | Hạng mục | Quyết định |
 |---|---|
 | Phiên bản macOS | **macOS 13 Ventura → macOS 27**, Universal (Intel + Apple Silicon) |
-| Công nghệ | Swift + SwiftUI (native) |
+| Phiên bản Windows | **Windows 10 1809 (build 17763) trở lên và Windows 11**, x64 và ARM64 |
+| Công nghệ | macOS: Swift + SwiftUI (native). Windows: C# / .NET 8 + WinUI 3, self-contained |
+| Cấu trúc repo | Một repo, tách thư mục theo hệ điều hành: `App/` + `Packages/DiskKit` (macOS), `windows/` (Windows) |
 | File trùng | **Chỉ cần trùng tên** |
 | Xoá file | Cho phép — **chuyển vào Thùng rác**, có xác nhận |
 | Ngôn ngữ | **Tiếng Việt + English** |
 | Ổ rời | Phát hiện trước, **hỏi xác nhận** rồi mới quét |
 | Docker | **Kiểm tra cài đặt + daemon** trước, rồi mới quét / dọn |
-| Phát hành | DMG ký + notarize (không qua App Store vì sandbox chặn quét toàn đĩa) |
+| Phát hành | GitHub Release khi đẩy tag `v*`: macOS `.dmg` (hiện ký ad-hoc), Windows `.zip` portable x64 và ARM64 (hiện chưa ký, chưa có `Setup.exe`). Không qua App Store / Microsoft Store vì cần quét toàn đĩa. Xem [RELEASING.md](RELEASING.md) |
+| Xoá file | macOS: Thùng rác. Windows: Thùng rác; USB/thẻ nhớ không có → cảnh báo đỏ và xoá vĩnh viễn nếu người dùng đồng ý |
 
 ---
 
 ## 2. Tính năng chi tiết
+
+> Phần này mô tả theo bản macOS (bản đầu tiên). Bản Windows có cùng tính năng; những chỗ khác (quyền Admin thay Full Disk Access, Thùng rác của Windows, đường dẫn thư mục, phím tắt) xem [hướng dẫn sử dụng, mục 13](USER_GUIDE.md#13-khác-biệt-giữa-bản-macos-và-windows) và [DESIGN.md](DESIGN.md).
 
 ### 2.1 Quản lý ổ đĩa
 - Liệt kê volume đang mount: tên, loại (trong / rời / USB), định dạng (APFS, HFS+, exFAT…), tổng / đã dùng / còn trống.
@@ -160,9 +165,9 @@ Mỗi dòng có nút **[Xem]** dẫn tới tab liên quan. Ngưỡng là khuyế
 │ ⚙️ Cài đặt        │  └─────────────────────┘  │ Movies     22.7 GB │ │
 └──────────────────┴────────────────────────────────────────────────┘
 ```
-- `NavigationSplitView` (sidebar ổ đĩa + công cụ / nội dung chính).
-- Hỗ trợ Light / Dark mode.
-- Màn hình chào lần đầu: giới thiệu + hướng dẫn cấp Full Disk Access.
+- macOS: `NavigationSplitView` (sidebar ổ đĩa + công cụ / nội dung chính), Light / Dark mode, màn hình chào hướng dẫn cấp Full Disk Access.
+- Windows: `NavigationView` (ngăn trái luôn mở), giao diện Fluent / Mica, màn hình chào có nút Khởi động lại với quyền Admin.
+- Cả hai: menu luôn hiện trên mọi trang, trang cuộn thay vì tràn viền. Đối chiếu chi tiết ở [DESIGN.md](DESIGN.md).
 
 ---
 
@@ -176,13 +181,16 @@ Chi tiết: [ARCHITECTURE.md](ARCHITECTURE.md). Tóm tắt:
 | Trạng thái | `App/Sources/State/` | `AppState` — nguồn dữ liệu duy nhất, điều phối quét / Docker / xoá; `AppSettings` — tuỳ chọn |
 | Ngôn ngữ | `App/Sources/Localization/`, `App/Resources/{vi,en}.lproj` | Tra chuỗi theo ngôn ngữ đang chọn, đổi ngay |
 | Logic | `Packages/DiskKit/` | Volumes · Scanner · Analysis · Docker · Health · Trash · Layout · System — không phụ thuộc UI, có unit test |
-| Build | `project.yml`, `Makefile`, `scripts/`, `.github/workflows/` | Sinh project, test, build universal, DMG, CI, Release |
+| Logic (Windows) | `windows/src/DiskKit.Core/` | Bản C# của cùng các mô-đun, thêm đọc thư mục hàng loạt của Windows, Recycle Bin, phát hiện USB; có unit test chạy được trên mọi hệ điều hành |
+| Giao diện (Windows) | `windows/src/CleanMyMac.App/` | WinUI 3: `MainWindow`, `State/`, `Pages/`, `UI/`, `Localization/` (nạp chung file `.strings` của macOS) |
+| Build | `project.yml`, `Makefile`, `scripts/`, `global.json`, `.github/workflows/` | Sinh project, test, build universal + DMG, publish Windows, CI, Release |
 
 ## 4b. Hướng dẫn sử dụng
 
-- **Trong app**: mục *Hướng dẫn sử dụng* ở thanh bên (⌘?) — 9 chủ đề, song ngữ, có nút mở Cài đặt hệ thống cho Full Disk Access.
-- **Tài liệu**: [USER_GUIDE.md](USER_GUIDE.md) (Tiếng Việt), [USER_GUIDE.en.md](USER_GUIDE.en.md) (English) — cài đặt, quét, đọc mức độ, từng màn hình, xoá & khôi phục, phím tắt, FAQ.
-- **Lần mở đầu**: màn hình chào giới thiệu tính năng, chọn ngôn ngữ, hướng dẫn cấp Full Disk Access.
+- **Trong app**: mục *Hướng dẫn sử dụng* ở menu bên trái (macOS: ⌘?) — 9 chủ đề, song ngữ; macOS có nút mở Cài đặt hệ thống cho Full Disk Access, Windows có nút Khởi động lại với quyền Admin.
+- **Tài liệu**: [USER_GUIDE.md](USER_GUIDE.md) (Tiếng Việt), [USER_GUIDE.en.md](USER_GUIDE.en.md) (English) — thống nhất cho cả macOS và Windows: tải đúng file ở trang Releases, cài đặt từng hệ điều hành, quét, mức độ cảnh báo, từng màn hình, xoá và khôi phục, phím tắt, khác biệt giữa hai bản, xử lý sự cố, dữ liệu và gỡ cài đặt, FAQ.
+- **Dành cho người duy trì**: [RELEASING.md](RELEASING.md), [ARCHITECTURE.md](ARCHITECTURE.md), [CHANGELOG.md](../CHANGELOG.md).
+- **Lần mở đầu**: màn hình chào giới thiệu tính năng, chọn ngôn ngữ, hướng dẫn cấp quyền.
 
 ## 5. Lộ trình & trạng thái
 
@@ -195,21 +203,51 @@ Chi tiết: [ARCHITECTURE.md](ARCHITECTURE.md). Tóm tắt:
 | 4 | File trùng tên | ✅ |
 | 5 | Docker 4 bước | ✅ |
 | 6 | Tóm tắt mức độ, xoá vào Thùng rác + chặn + nhật ký, Cài đặt | ✅ |
-| 8 | **Bản Windows** (WinUI 3, Windows 10 1809+, x64 & ARM64): logic C#, giao diện đủ 6 trang, CI build + chạy thử, tài liệu | ✅ |
-| 7 | Icon, build universal, DMG, CI/Release tự động, hướng dẫn sử dụng | ✅ (ký Developer ID + notarize: cần tài khoản Apple Developer) |
+| 7 | Icon, build universal, DMG, CI/Release tự động, hướng dẫn sử dụng (macOS) | ✅ (ký Developer ID + notarize: cần tài khoản Apple Developer) |
+| 8 | **Bản Windows** (WinUI 3, Windows 10 1809+, x64 & ARM64): logic C#, đủ 6 trang, CI build + chạy thử | ✅ |
+| 9 | Sửa lỗi giao diện: tràn viền (Trùng tên), menu luôn hiện trên mọi trang (cả hai bản) | ✅ |
+| 10 | **Phát hành `v1.0.0-beta.1`** (GitHub Release: DMG + zip Windows x64/ARM64) và cải tiến workflow Release (tuần tự, checksum, ghi chú, pre-release) | ✅ |
+| 11 | Tài liệu hợp nhất macOS + Windows, RELEASING.md, CHANGELOG.md | ✅ |
 
 ## 6. Kiểm thử
-- **Unit test (DiskKit):** tính dung lượng (hardlink, sparse), phân loại, gom trùng tên (hoa/thường, NFC/NFD), ngưỡng cảnh báo, parse output Docker, danh sách chặn xoá.
-- **CI:** build + test trên GitHub Actions `macos` runner cho mỗi push.
-- **Kiểm thử thủ công trên máy Mac thật** (do người dùng thực hiện): giao diện, Full Disk Access, cắm/rút ổ rời, Docker Desktop / OrbStack.
 
-> Lưu ý: môi trường phát triển hiện tại là Linux, không có Xcode — code được build/test qua CI macOS; phần chạy thử giao diện cần thực hiện trên máy Mac.
+- **Unit test macOS** (`Packages/DiskKit/Tests`, 35 test): tính dung lượng (hardlink, symlink, thiết bị khác), phân loại, gom trùng tên (hoa/thường, NFC/NFD), ngưỡng cảnh báo, parse output Docker, danh sách chặn xoá, treemap, so khớp bộ đọc `getattrlistbulk` với `lstat`. Chạy trên macOS và Linux (`make test-linux`).
+- **Unit test Windows** (`windows/tests`, 29 test case): cùng các nhóm trên, thêm bộ đọc thư mục Windows (so khớp với bộ đọc .NET, hard link chỉ đếm một lần) và `TrashGuard` với đường dẫn Windows. Chạy trên Windows và Linux.
+- **Kiểm tra bản dịch** (`scripts/check_localization.py`): mọi khoá dùng trong code của **cả hai app** có đủ ở tiếng Việt và tiếng Anh, số `%@` khớp nhau.
+- **CI** (`ci.yml`, mỗi lần push): test Linux; build macOS universal + DMG; build Windows x64 và ARM64. **Chạy thử app thật** trên macOS 15 và Windows Server 2025: mở từng trang (kể cả khi chưa quét), quét hệ thống thật, chụp màn hình, thất bại nếu app thoát bất thường. Ảnh chụp giúp kiểm tra menu luôn hiện và không tràn viền.
+- **Chưa có kiểm thử tự động** cho: cắm/rút ổ rời thật, xoá file thật vào Thùng rác, xoá image Docker thật, hộp thoại ổ rời, giao diện từng thao tác bấm/nháy đúp. Phần này cần thử thủ công trên máy thật (xem mục 8).
 
 ## 7. Rủi ro
+
 | Rủi ro | Giảm thiểu |
 |---|---|
-| Thiếu Full Disk Access → kết quả thiếu | Onboarding + banner cảnh báo + đánh dấu thư mục không đọc được |
-| Trùng tên ≠ trùng nội dung → user xoá nhầm | Ghi chú rõ trên UI, chỉ vào Thùng rác, khôi phục được |
-| Khác biệt API giữa macOS 13 và 27 | Kiểm tra `#available`, CI build với SDK mới nhất, deployment target 13.0 |
-| Docker.raw không nhỏ lại sau khi dọn | Giải thích trên UI |
+| Thiếu quyền đọc thư mục bảo vệ (🍎 Full Disk Access, 🪟 Admin) → kết quả thiếu | Màn hình chào, banner/gợi ý, đánh dấu vùng "không đọc được", nút mở Cài đặt / khởi động lại với quyền Admin |
+| Trùng tên ≠ trùng nội dung → user xoá nhầm | Ghi chú rõ trên UI, không cho xoá hết mọi bản, chỉ vào Thùng rác, khôi phục được |
+| Khác biệt API giữa các bản hệ điều hành | macOS: `#available`, deployment target 13.0, CI SDK mới. Windows: nhắm Windows 10 1809, bộ đọc thư mục có bản dự phòng .NET |
+| Docker.raw / `.vhdx` không nhỏ lại sau khi dọn | Giải thích trên UI và trong hướng dẫn |
 | Ổ rời lớn / chậm (HDD, USB 2.0) | Hỏi trước khi quét, hiển thị tiến trình, huỷ được |
+| 🪟 Xoá trên USB/thẻ nhớ (không có Thùng rác) là xoá vĩnh viễn | Cảnh báo đỏ + nút "Xoá vĩnh viễn" trong hộp thoại; **chưa kiểm thử trên thiết bị thật** |
+| Bản dựng chưa ký số → cảnh báo Gatekeeper/SmartScreen | Hướng dẫn vượt qua trong tài liệu và ghi chú Release; lộ trình ký số ở mục 8 |
+| Tag gắn nhầm vào commit cũ → Release dùng workflow cũ | Dùng `git tag vX origin/main`; xem [RELEASING.md](RELEASING.md) |
+| Tên "CleanMyMac" là thương hiệu của MacPaw | Đổi tên trước khi phát hành công khai (xem README) |
+
+## 8. Hạn chế đã biết và hướng phát triển tiếp theo
+
+**Hiện trạng:** bản beta `v1.0.0-beta.1` đã phát hành, có đủ file cho macOS và Windows. Dưới đây là những việc còn thiếu; thứ tự là **đề xuất**, chưa phải cam kết.
+
+### Cần làm trước khi phát hành rộng rãi
+1. **Thử trên thiết bị thật** và ghi lại kết quả: cắm USB/SSD rời (cả hai hệ điều hành), xoá file thật trên USB (Windows), Docker có image `<none>`, Windows 10 bản 1809, máy ARM64, macOS 13/14/26.
+2. **Đổi tên** sản phẩm (tránh trùng thương hiệu MacPaw) và thêm file **`LICENSE`**.
+3. **Ký số**: Apple Developer ID + notarize (macOS), chứng chỉ ký code (Windows) rồi nối vào `release.yml` — xem [RELEASING.md](RELEASING.md#6-ký-số-và-notarize-chưa-bật).
+4. **Trình cài đặt Windows** (`Setup.exe` bằng Inno Setup hoặc MSIX): lối tắt Start Menu, mục gỡ cài đặt. Hiện chỉ có zip portable.
+
+### Cải thiện trải nghiệm
+5. Bản Windows: **phím tắt** và **menu chuột phải** cho bằng bản macOS; thêm mục "Hiện màn hình chào" trong Cài đặt.
+6. **Tự kiểm tra bản mới** (hoặc ít nhất nhắc khi có bản mới).
+7. So khớp **nội dung** (băm file) bên cạnh so khớp tên, để giảm nhầm lẫn khi tìm file trùng (hiện chỉ so tên theo yêu cầu ban đầu).
+8. Thêm ngôn ngữ khác (cấu trúc chuỗi đã sẵn sàng).
+9. Dọn thêm Docker: build cache, volume không dùng (hiện chỉ xoá image `<none>`).
+
+### Hạ tầng
+10. Chạy thử trên nhiều phiên bản hệ điều hành trong CI (macOS 13/14, Windows 10), nếu runner hỗ trợ.
+11. Test giao diện tự động cho các luồng bấm nút (xác nhận ổ rời, xác nhận xoá).
